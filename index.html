@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ProductNova | Electrodomésticos y Servicios</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="conexion_db.js"></script>
+
+
+    <style>
+
+        /* =========================
+           CONFIGURACIÓN GENERAL
+        ========================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --azul: #2563eb;
+            --azul-oscuro: #0f172a;
+            --azul-claro: #eff6ff;
+            --texto: #1e293b;
+            --texto-secundario: #64748b;
+            --blanco: #ffffff;
+            --fondo: #f8fafc;
+            --borde: #e2e8f0;
+            --sombra: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+            height: 76px;
+            background: rgba(255, 255, 255, 0.97);
+            border-bottom: 1px solid var(--borde);
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 7%;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            box-shadow: 0 2px 15px rgba(15, 23, 42, 0.05);
+        }
+
+
+        /* LOGO */
+
+        #logo {
+            margin-right: 45px;
+        }
+
+        #logo a {
+            display: flex;
+            align-items: center;
+        }
+
+        #logo img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+
+        /* ENLACES NAV */
+
+        nav > div:not(#logo):not(#login):not(#carrito-container) {
+            position: relative;
+            margin-right: 10px;
+        }
+
+        nav > div > a {
+            display: block;
+
+            padding: 12px 16px;
+
+            color: var(--texto);
+
+            font-size: 15px;
+            font-weight: 600;
+
+            border-radius: 8px;
+
+            transition: 0.25s;
+        }
+
+        nav > div > a:hover {
+            background: var(--azul-claro);
+            color: var(--azul);
+        }
+
+
+        /* =========================
+           MENÚS DESPLEGABLES
+        ========================= */
+
+        .desplegable {
+            display: none;
+
+            position: absolute;
+
+            top: calc(100% + 8px);
+            left: 0;
+
+            min-width: 190px;
+
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+
+            border-radius: 12px;
+
+            padding: 8px;
+
+            box-shadow: var(--sombra);
+
+            animation: aparecer 0.2s ease;
+        }
+
+        .desplegable a {
+            display: block;
+
+            padding: 11px 14px;
+
+            border-radius: 7px;
+
+            color: var(--texto);
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+        .desplegable a:hover {
+            background: var(--azul-claro);
+            color: var(--azul);
+            padding-left: 18px;
+        }
+
+        #productos:hover .desplegable,
+        #servicios:hover .desplegable {
+            display: block;
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =========================
+           CARRITO (icono nav)
+        ========================= */
+
+        #carrito-container {
+            position: relative;
+            margin-left: auto;
+            margin-right: 18px;
+
+            /* Oculto por defecto: solo se muestra si hay sesión iniciada */
+            display: none;
+        }
+
+        #carrito-boton {
+            position: relative;
+
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+
+            background: var(--blanco);
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        #carrito-boton:hover {
+            background: var(--azul-claro);
+            border-color: #bfdbfe;
+        }
+
+        #carrito-boton svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--azul-oscuro);
+        }
+
+        #carrito-contador {
+            position: absolute;
+
+            top: -6px;
+            right: -6px;
+
+            min-width: 18px;
+            height: 18px;
+
+            padding: 0 4px;
+
+            background: var(--azul);
+            color: white;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: bold;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            display: none;
+        }
+
+        /* Panel desplegable del carrito */
+
+        #carrito-panel {
+            display: none;
+
+            position: absolute;
+
+            top: calc(100% + 10px);
+            right: 0;
+
+            width: 300px;
+
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+            border-radius: 14px;
+
+            box-shadow: var(--sombra);
+
+            padding: 16px;
+
+            z-index: 200;
+
+            animation: aparecer 0.2s ease;
+        }
+
+        #carrito-panel.abierto {
+            display: block;
+        }
+
+        #carrito-panel h4 {
+            font-size: 15px;
+            color: var(--azul-oscuro);
+            margin-bottom: 12px;
+        }
+
+        #carrito-lista {
+            max-height: 220px;
+            overflow-y: auto;
+
+            margin-bottom: 14px;
+        }
+
+        .carrito-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 8px 0;
+
+            border-bottom: 1px solid var(--borde);
+
+            font-size: 13px;
+        }
+
+        .carrito-item:last-child {
+            border-bottom: none;
+        }
+
+        .carrito-item-nombre {
+            color: var(--texto);
+            font-weight: 600;
+        }
+
+        .carrito-item-cantidad {
+            color: var(--texto-secundario);
+            font-size: 12px;
+        }
+
+        .carrito-item-quitar {
+            border: none;
+            background: none;
+            color: #ef4444;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #carrito-vacio {
+            color: var(--texto-secundario);
+            font-size: 13px;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        #carrito-total {
+            display: flex;
+            justify-content: space-between;
+
+            font-weight: bold;
+
+            color: var(--azul-oscuro);
+
+            margin-bottom: 12px;
+
+            font-size: 14px;
+        }
+
+        #carrito-finalizar {
+            width: 100%;
+
+            border: none;
+
+            padding: 11px;
+
+            border-radius: 9px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        #carrito-finalizar:hover {
+            background: #1d4ed8;
+        }
+
+        #carrito-finalizar:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+
+        /* =========================
+           LOGIN
+        ========================= */
+
+        #login a {
+            background: var(--azul);
+            color: white;
+
+            padding: 11px 20px;
+
+            border-radius: 9px;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            transition: 0.25s;
+
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        #login a:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Cuando el carrito está visible, el login ya no necesita margin-left:auto */
+        #carrito-container[style*="flex"] ~ #login {
+            margin-left: 0;
+        }
+
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding: 90px 30px 70px;
+
+            text-align: center;
+        }
+
+        .hero-etiqueta {
+            display: inline-block;
+
+            padding: 7px 14px;
+
+            background: var(--azul-claro);
+
+            color: var(--azul);
+
+            border-radius: 30px;
+
+            font-size: 13px;
+            font-weight: bold;
+
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 5vw, 60px);
+
+            line-height: 1.1;
+
+            color: var(--azul-oscuro);
+
+            max-width: 800px;
+
+            margin: 0 auto 20px;
+        }
+
+        .hero h1 span {
+            color: var(--azul);
+        }
+
+        .hero p {
+            max-width: 650px;
+
+            margin: 0 auto;
+
+            color: var(--texto-secundario);
+
+            font-size: 18px;
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        main {
+            max-width: 1200px;
+
+            margin: auto;
+
+            padding: 0 30px 80px;
+        }
+
+
+        /* =========================
+           SECCIONES
+        ========================= */
+
+        .seccion {
+            margin-bottom: 100px;
+
+            scroll-margin-top: 100px;
+        }
+
+        .titulo-seccion {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+
+            margin-bottom: 35px;
+        }
+
+        .titulo-seccion div:first-child {
+            text-align: left;
+        }
+
+        .titulo-seccion h2 {
+            font-size: 32px;
+
+            color: var(--azul-oscuro);
+
+            margin-bottom: 5px;
+        }
+
+        .titulo-seccion p {
+            color: var(--texto-secundario);
+
+            font-size: 15px;
+        }
+
+
+        /* =========================
+           TARJETAS
+        ========================= */
+
+        .productos-container,
+        .servicios-container {
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+
+            border-radius: 16px;
+
+            padding: 28px;
+
+            box-shadow: var(--sombra);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                border-color 0.25s ease;
+
+            scroll-margin-top: 100px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-7px);
+
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+
+            border-color: #bfdbfe;
+        }
+
+
+        /* IMAGEN DEL PRODUCTO/SERVICIO */
+
+        .card-imagen {
+            width: 100%;
+            height: 150px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(160deg, var(--azul-claro), #dbeafe);
+
+            border-radius: 14px;
+
+            margin-bottom: 20px;
+        }
+
+        .card-imagen svg {
+            width: 68px;
+            height: 68px;
+
+            stroke: var(--azul);
+        }
+
+
+        /* TITULO */
+
+        .card h3 {
+            color: var(--azul-oscuro);
+
+            font-size: 19px;
+
+            margin-bottom: 10px;
+        }
+
+
+        /* DESCRIPCIÓN */
+
+        .card p {
+            color: var(--texto-secundario);
+
+            font-size: 14px;
+
+            line-height: 1.6;
+
+            margin-bottom: 22px;
+
+            flex-grow: 1;
+        }
+
+
+        /* PRECIO */
+
+        .precio {
+            color: var(--azul-oscuro);
+
+            font-size: 25px;
+
+            font-weight: bold;
+
+            margin-bottom: 18px;
+        }
+
+        .precio small {
+            font-size: 13px;
+
+            color: var(--texto-secundario);
+
+            font-weight: normal;
+        }
+
+
+        /* BOTÓN */
+
+        .card button {
+            width: 100%;
+
+            border: none;
+
+            padding: 12px 18px;
+
+            border-radius: 9px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+        .card button:hover {
+            background: #1d4ed8;
+
+            transform: translateY(-2px);
+        }
+
+        .card button.anadido {
+            background: #16a34a;
+        }
+
+
+        /* =========================
+           TARJETA DESTACADA
+        ========================= */
+
+        #p3 {
+            border: 2px solid #bfdbfe;
+
+            position: relative;
+        }
+
+        #p3::before {
+            content: "DESTACADO";
+
+            position: absolute;
+
+            top: -12px;
+            right: 18px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 10px;
+
+            font-weight: bold;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+        }
+
+
+        /* =========================
+           TARGET
+        ========================= */
+
+        .card:target {
+            animation: resaltar 1.2s ease;
+
+            border-color: var(--azul);
+        }
+
+        @keyframes resaltar {
+            0% {
+                transform: scale(1);
+            }
+
+            40% {
+                transform: scale(1.04);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            background: var(--azul-oscuro);
+
+            color: white;
+
+            padding: 45px 30px;
+
+            text-align: center;
+        }
+
+        footer h3 {
+            margin-bottom: 8px;
+        }
+
+        footer p {
+            color: #94a3b8;
+
+            font-size: 14px;
+
+            margin-bottom: 20px;
+        }
+
+        .footer-copy {
+            font-size: 12px;
+
+            color: #64748b;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            nav {
+                padding: 0 20px;
+            }
+
+            #logo {
+                margin-right: 10px;
+            }
+
+            #logo img {
+                width: 42px;
+                height: 42px;
+            }
+
+            nav > div > a {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+
+            #login a {
+                padding: 9px 12px;
+            }
+
+            .hero {
+                padding-top: 65px;
+            }
+
+            .titulo-seccion {
+                display: block;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            nav {
+                height: auto;
+
+                padding: 12px 15px;
+
+                flex-wrap: wrap;
+
+                gap: 5px;
+            }
+
+            #logo {
+                margin-right: auto;
+            }
+
+            #sobreNosotros,
+            #productos,
+            #servicios {
+                display: none;
+            }
+
+            #login {
+                margin-left: 10px;
+            }
+
+            #carrito-container {
+                margin-left: 0;
+                margin-right: 8px;
+            }
+
+            #carrito-panel {
+                width: 260px;
+                right: -10px;
+            }
+
+            .hero {
+                padding: 60px 20px;
+            }
+
+            .hero h1 {
+                font-size: 38px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            main {
+                padding: 0 20px 50px;
+            }
+
+            .productos-container,
+            .servicios-container {
+                grid-template-columns: 1fr;
+            }
+
+            .seccion {
+                margin-bottom: 70px;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav>
+
+        <div id="logo">
+
+            <a href="#">
+                <img src="logo.png" alt="Logo de la empresa">
+            </a>
+
+        </div>
+
+
+        <div id="sobreNosotros">
+
+            <a href="sobrenosotros.html">
+                Sobre nosotros
+            </a>
+
+        </div>
+
+
+        <!-- PRODUCTOS -->
+
+        <div id="productos">
+
+            <a href="#">
+                Productos ▾
+            </a>
+
+            <div class="desplegable">
+
+                <a href="#p1">Frigorífico No Frost</a>
+                <a href="#p2">Lavadora carga frontal</a>
+                <a href="#p3">Horno multifunción</a>
+                <a href="#p4">Microondas digital</a>
+                <a href="#p5">Lavavajillas integrable</a>
+
+            </div>
+
+        </div>
+
+
+        <!-- SERVICIOS -->
+
+        <div id="servicios">
+
+            <a href="#">
+                Servicios ▾
+            </a>
+
+            <div class="desplegable">
+
+                <a href="#s1">Instalación a domicilio</a>
+                <a href="#s2">Reparación a domicilio</a>
+                <a href="#s3">Mantenimiento anual</a>
+                <a href="#s4">Garantía extendida</a>
+                <a href="#s5">Soporte técnico 24/7</a>
+
+            </div>
+
+        </div>
+
+
+        <!-- CARRITO (solo visible si hay sesión iniciada) -->
+
+        <div id="carrito-container">
+
+            <button id="carrito-boton" title="Ver cesta">
+
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+
+                <span id="carrito-contador">0</span>
+
+            </button>
+
+            <div id="carrito-panel">
+
+                <h4>Tu cesta</h4>
+
+                <div id="carrito-lista"></div>
+
+                <div id="carrito-vacio">
+                    Tu cesta está vacía.
+                </div>
+
+                <div id="carrito-total" style="display:none;">
+                    <span>Total</span>
+                    <span id="carrito-total-importe">0,00 €</span>
+                </div>
+
+                <button id="carrito-finalizar" disabled>
+                    Finalizar compra
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <div id="login">
+
+            <a href="login.html" id="login-enlace">
+                Iniciar sesión
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         HERO
+    ========================= -->
+
+    <header class="hero">
+
+        <div class="hero-etiqueta">
+            En ProductNova encontrarás:
+        </div>
+
+        <h1>
+            Electrodomésticos para
+            <span>cada rincón de tu hogar.</span>
+        </h1>
+
+        <p>
+            Descubre nuestra selección de electrodomésticos y servicios
+            de instalación y mantenimiento, pensados para hacer tu día
+            a día más cómodo y eficiente.
+        </p>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main>
+
+
+        <!-- =========================
+             PRODUCTOS
+        ========================= -->
+
+        <section class="seccion" id="productos-seccion">
+
+            <div class="titulo-seccion">
+
+                <div>
+
+                    <h2>Productos</h2>
+
+                    <p>
+                        Electrodomésticos de calidad para tu cocina y tu hogar.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="productos-container">
+
+
+                <div class="card" id="p1">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="1.5"></rect>
+                            <line x1="5" y1="9" x2="19" y2="9"></line>
+                            <line x1="8" y1="5.5" x2="8" y2="6.5"></line>
+                            <line x1="8" y1="12.5" x2="8" y2="13.5"></line>
+                        </svg>
+
+                    </div>
+
+                    <h3>Frigorífico No Frost</h3>
+
+                    <p>
+                        Combi de dos puertas con tecnología No Frost
+                        y distribución interior ajustable.
+                    </p>
+
+                    <div class="precio">
+                        499,99 € <small>/ unidad</small>
+                    </div>
+
+                    <button>
+                        Comprar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="p2">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                            <circle cx="12" cy="13" r="5"></circle>
+                            <circle cx="12" cy="13" r="2"></circle>
+                            <line x1="7" y1="6" x2="9" y2="6"></line>
+                        </svg>
+
+                    </div>
+
+                    <h3>Lavadora carga frontal</h3>
+
+                    <p>
+                        8 kg de capacidad, motor inverter silencioso
+                        y programas rápidos de lavado.
+                    </p>
+
+                    <div class="precio">
+                        349,99 € <small>/ unidad</small>
+                    </div>
+
+                    <button>
+                        Comprar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="p3">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                            <rect x="6" y="7" width="12" height="8" rx="1"></rect>
+                            <line x1="6" y1="18" x2="18" y2="18"></line>
+                        </svg>
+
+                    </div>
+
+                    <h3>Horno multifunción</h3>
+
+                    <p>
+                        Horno empotrable con 9 funciones de cocción,
+                        limpieza pirolítica y control digital.
+                    </p>
+
+                    <div class="precio">
+                        299,99 € <small>/ unidad</small>
+                    </div>
+
+                    <button>
+                        Comprar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="p4">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                            <rect x="6" y="8" width="8" height="8" rx="1"></rect>
+                            <line x1="17" y1="9" x2="17" y2="9.5"></line>
+                            <line x1="17" y1="12" x2="17" y2="12.5"></line>
+                        </svg>
+
+                    </div>
+
+                    <h3>Microondas digital</h3>
+
+                    <p>
+                        20 litros de capacidad, grill integrado
+                        y panel de control digital.
+                    </p>
+
+                    <div class="precio">
+                        99,99 € <small>/ unidad</small>
+                    </div>
+
+                    <button>
+                        Comprar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="p5">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                            <path d="M8 3v4"></path>
+                            <path d="M16 3v4"></path>
+                            <circle cx="12" cy="14" r="4"></circle>
+                            <path d="M12 12v2l1.5 1"></path>
+                        </svg>
+
+                    </div>
+
+                    <h3>Lavavajillas integrable</h3>
+
+                    <p>
+                        12 servicios, 6 programas de lavado
+                        y bajo consumo de agua y energía.
+                    </p>
+
+                    <div class="precio">
+                        379,99 € <small>/ unidad</small>
+                    </div>
+
+                    <button>
+                        Comprar
+                    </button>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             SERVICIOS
+        ========================= -->
+
+        <section class="seccion" id="servicios-seccion">
+
+            <div class="titulo-seccion">
+
+                <div>
+
+                    <h2>Servicios</h2>
+
+                    <p>
+                        Instalación, reparación y mantenimiento de tus electrodomésticos.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="servicios-container">
+
+
+                <div class="card" id="s1">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-2.4 2.4-2-2z"></path>
+                        </svg>
+
+                    </div>
+
+                    <h3>Instalación a domicilio</h3>
+
+                    <p>
+                        Instalamos y conectamos tu electrodoméstico
+                        nuevo el mismo día de la entrega.
+                    </p>
+
+                    <div class="precio">
+                        29,99 € <small>/ servicio</small>
+                    </div>
+
+                    <button>
+                        Contratar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="s2">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"></path>
+                        </svg>
+
+                    </div>
+
+                    <h3>Reparación a domicilio</h3>
+
+                    <p>
+                        Diagnóstico y reparación de averías por técnicos
+                        cualificados, con piezas originales.
+                    </p>
+
+                    <div class="precio">
+                        39,99 € <small>/ visita</small>
+                    </div>
+
+                    <button>
+                        Contratar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="s3">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <path d="M8 15l2.5 2.5L16 12"></path>
+                        </svg>
+
+                    </div>
+
+                    <h3>Mantenimiento anual</h3>
+
+                    <p>
+                        Revisión periódica de tus electrodomésticos
+                        para alargar su vida útil y su rendimiento.
+                    </p>
+
+                    <div class="precio">
+                        19,99 € <small>/ mes</small>
+                    </div>
+
+                    <button>
+                        Contratar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="s4">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"></path>
+                            <path d="M9.5 12l2 2 3.5-3.5"></path>
+                        </svg>
+
+                    </div>
+
+                    <h3>Garantía extendida</h3>
+
+                    <p>
+                        Amplía la garantía de fábrica hasta 5 años
+                        con cobertura total de piezas y mano de obra.
+                    </p>
+
+                    <div class="precio">
+                        49,99 € <small>/ año</small>
+                    </div>
+
+                    <button>
+                        Contratar
+                    </button>
+
+                </div>
+
+
+                <div class="card" id="s5">
+
+                    <div class="card-imagen">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 12a8 8 0 0 1 16 0"></path>
+                            <path d="M4 12v4a2 2 0 0 0 2 2h1v-6H4z"></path>
+                            <path d="M20 12v4a2 2 0 0 1-2 2h-1v-6h3z"></path>
+                            <path d="M9 18v1a2 2 0 0 0 2 2h2"></path>
+                        </svg>
+
+                    </div>
+
+                    <h3>Soporte técnico 24/7</h3>
+
+                    <p>
+                        Atención telefónica y por chat para resolver
+                        dudas o incidencias a cualquier hora.
+                    </p>
+
+                    <div class="precio">
+                        9,99 € <small>/ mes</small>
+                    </div>
+
+                    <button>
+                        Contratar
+                    </button>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================= -->
+
+    <footer>
+
+        <h3>ProductNova</h3>
+
+        <p>
+            Electrodomésticos y servicio técnico para tu hogar.
+        </p>
+
+        <div class="footer-copy">
+            © 2026 ProductNova. Todos los derechos reservados.
+        </div>
+
+    </footer>
+
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        /*
+         * =========================
+         * SESIÓN
+         * =========================
+         *
+         * Se considera que el usuario ha iniciado sesión
+         * si existe la clave "sesionIniciada" = "true"
+         * en localStorage. login.html debe guardar esta
+         * clave cuando el login sea correcto, por ejemplo:
+         *
+         *   localStorage.setItem("sesionIniciada", "true");
+         *
+         * y logout.html / botón de cerrar sesión debe eliminarla:
+         *
+         *   localStorage.removeItem("sesionIniciada");
+         */
+
+        function haySesionIniciada() {
+            return localStorage.getItem("sesionIniciada") === "true";
+        }
+
+
+        const carritoContainer = document.getElementById("carrito-container");
+        const carritoBoton = document.getElementById("carrito-boton");
+        const carritoPanel = document.getElementById("carrito-panel");
+        const carritoContador = document.getElementById("carrito-contador");
+        const carritoLista = document.getElementById("carrito-lista");
+        const carritoVacio = document.getElementById("carrito-vacio");
+        const carritoTotal = document.getElementById("carrito-total");
+        const carritoTotalImporte = document.getElementById("carrito-total-importe");
+        const carritoFinalizar = document.getElementById("carrito-finalizar");
+        const loginEnlace = document.getElementById("login-enlace");
+
+
+        /*
+         * =========================
+         * MOSTRAR U OCULTAR EL ICONO
+         * DE LA CESTA SEGÚN LA SESIÓN
+         * =========================
+         */
+
+        function actualizarVisibilidadCarrito() {
+
+            if (haySesionIniciada()) {
+
+                carritoContainer.style.display = "flex";
+                carritoContainer.style.alignItems = "center";
+
+                // Si hay sesión, cambiamos el enlace de login
+                // para que sirva como acceso a la cuenta.
+                loginEnlace.textContent = "Mi cuenta";
+                loginEnlace.href = "cuenta.html";
+
+            } else {
+
+                carritoContainer.style.display = "none";
+                carritoPanel.classList.remove("abierto");
+
+                loginEnlace.textContent = "Iniciar sesión";
+                loginEnlace.href = "login.html";
+
+            }
+
+        }
+
+
+        /*
+         * =========================
+         * ALMACENAMIENTO DEL CARRITO
+         * =========================
+         *
+         * Se guarda en localStorage bajo la clave "carrito"
+         * como un array de objetos:
+         * { nombre, precio, cantidad }
+         */
+
+        function obtenerCarrito() {
+
+            const datos = localStorage.getItem("carrito");
+
+            return datos ? JSON.parse(datos) : [];
+
+        }
+
+        function guardarCarrito(carrito) {
+
+            localStorage.setItem("carrito", JSON.stringify(carrito));
+
+            /* Espejo del carrito en PostgreSQL: así la cesta
+               sigue ahí si el usuario cambia de navegador.
+               Si falla, la web sigue funcionando con localStorage. */
+
+            if (typeof DB !== "undefined") {
+                DB.guardarCarrito(DB.usuarioActual(), carrito);
+            }
+
+        }
+
+        function anadirAlCarrito(nombre, precio) {
+
+            const carrito = obtenerCarrito();
+
+            const existente = carrito.find(function(item) {
+                return item.nombre === nombre;
+            });
+
+            if (existente) {
+                existente.cantidad += 1;
+            } else {
+                carrito.push({ nombre: nombre, precio: precio, cantidad: 1 });
+            }
+
+            guardarCarrito(carrito);
+
+            renderizarCarrito();
+
+        }
+
+        function quitarDelCarrito(nombre) {
+
+            let carrito = obtenerCarrito();
+
+            carrito = carrito.filter(function(item) {
+                return item.nombre !== nombre;
+            });
+
+            guardarCarrito(carrito);
+
+            renderizarCarrito();
+
+        }
+
+
+        /*
+         * =========================
+         * RENDERIZAR EL PANEL
+         * DEL CARRITO
+         * =========================
+         */
+
+        function renderizarCarrito() {
+
+            const carrito = obtenerCarrito();
+
+            const totalUnidades = carrito.reduce(function(suma, item) {
+                return suma + item.cantidad;
+            }, 0);
+
+            // Contador sobre el icono
+
+            if (totalUnidades > 0) {
+                carritoContador.textContent = totalUnidades;
+                carritoContador.style.display = "flex";
+            } else {
+                carritoContador.style.display = "none";
+            }
+
+            // Lista de artículos
+
+            carritoLista.innerHTML = "";
+
+            if (carrito.length === 0) {
+
+                carritoVacio.style.display = "block";
+                carritoTotal.style.display = "none";
+                carritoFinalizar.disabled = true;
+
+                return;
+
+            }
+
+            carritoVacio.style.display = "none";
+            carritoTotal.style.display = "flex";
+            carritoFinalizar.disabled = false;
+
+            let total = 0;
+
+            carrito.forEach(function(item) {
+
+                total += item.precio * item.cantidad;
+
+                const fila = document.createElement("div");
+                fila.className = "carrito-item";
+
+                fila.innerHTML =
+                    '<div>' +
+                        '<div class="carrito-item-nombre">' + item.nombre + '</div>' +
+                        '<div class="carrito-item-cantidad">' + item.cantidad + ' x ' + item.precio.toFixed(2).replace(".", ",") + ' €</div>' +
+                    '</div>' +
+                    '<button class="carrito-item-quitar" data-nombre="' + item.nombre + '">Quitar</button>';
+
+                carritoLista.appendChild(fila);
+
+            });
+
+            carritoTotalImporte.textContent = total.toFixed(2).replace(".", ",") + " €";
+
+            // Botones de "Quitar"
+
+            carritoLista.querySelectorAll(".carrito-item-quitar").forEach(function(boton) {
+
+                boton.addEventListener("click", function() {
+                    quitarDelCarrito(boton.dataset.nombre);
+                });
+
+            });
+
+        }
+
+
+        /*
+         * =========================
+         * ABRIR / CERRAR PANEL
+         * =========================
+         */
+
+        carritoBoton.addEventListener("click", function(evento) {
+
+            evento.stopPropagation();
+
+            carritoPanel.classList.toggle("abierto");
+
+        });
+
+        document.addEventListener("click", function(evento) {
+
+            if (!carritoContainer.contains(evento.target)) {
+                carritoPanel.classList.remove("abierto");
+            }
+
+        });
+
+        carritoFinalizar.addEventListener("click", function() {
+
+            const carrito = obtenerCarrito();
+
+            if (carrito.length === 0) {
+                return;
+            }
+
+            /*
+             * Enviamos el carrito completo a pagos.html
+             * codificado en la URL, como una lista de
+             * productos: nombre, precio y cantidad.
+             *
+             * pagos.html debe leer el parámetro "carrito"
+             * y hacer JSON.parse(decodeURIComponent(...))
+             * para mostrar el nombre y el precio de cada
+             * producto (además, el carrito sigue disponible
+             * en localStorage.getItem("carrito") por si
+             * pagos.html prefiere leerlo de ahí).
+             */
+
+            const carritoCodificado =
+                encodeURIComponent(JSON.stringify(carrito));
+
+            window.location.href =
+                "pagos.html?carrito=" + carritoCodificado;
+
+        });
+
+
+        /*
+         * =========================
+         * BOTONES "COMPRAR" / "CONTRATAR"
+         * =========================
+         *
+         * Se enganchan como funciones porque el catálogo ya
+         * no es fijo: cargarCatalogo() reconstruye las tarjetas
+         * con los datos reales de la tabla `productos`, así que
+         * hay que volver a asociar los manejadores de clic cada
+         * vez que se generan tarjetas nuevas.
+         */
+
+        function activarBotonesComprar() {
+
+            const botonesComprar = document.querySelectorAll(".productos-container .card button");
+
+            botonesComprar.forEach(function(boton) {
+
+                boton.addEventListener("click", function() {
+
+                    if (!haySesionIniciada()) {
+
+                        alert("Debes iniciar sesión para añadir productos a la cesta.");
+
+                        window.location.href = "login.html";
+
+                        return;
+
+                    }
+
+                    const card = boton.closest(".card");
+
+                    const nombre = card.querySelector("h3").textContent.trim();
+
+                    const precioTexto = card.querySelector(".precio").textContent
+                        .replace("€", "")
+                        .replace(",", ".")
+                        .trim();
+
+                    const precio = parseFloat(precioTexto);
+
+                    anadirAlCarrito(nombre, precio);
+
+                    // Feedback visual en el botón
+
+                    const textoOriginal = boton.textContent;
+
+                    boton.textContent = "Añadido ✓";
+                    boton.classList.add("anadido");
+
+                    setTimeout(function() {
+                        boton.textContent = textoOriginal;
+                        boton.classList.remove("anadido");
+                    }, 1200);
+
+                });
+
+            });
+
+        }
+
+
+        /*
+         * =========================
+         * SERVICIOS (mantiene el flujo
+         * directo a pagos.html)
+         * =========================
+         */
+
+        function activarBotonesServicios() {
+
+            const botonesServicios = document.querySelectorAll(".servicios-container .card button");
+
+            botonesServicios.forEach(function(boton) {
+
+                boton.addEventListener("click", function() {
+
+                    const card = boton.closest(".card");
+
+                    const nombre = card.querySelector("h3").textContent.trim();
+
+                    const precioLimpio = card.querySelector(".precio").textContent
+                        .replace("€", "")
+                        .replace(",", ".")
+                        .trim();
+
+                    window.location.href =
+                        "pagos.html?producto=" +
+                        encodeURIComponent(nombre) +
+                        "&precio=" +
+                        encodeURIComponent(precioLimpio);
+
+                });
+
+            });
+
+        }
+
+
+        /*
+         * =========================
+         * CATÁLOGO DESDE LA BASE DE DATOS
+         * =========================
+         *
+         * index.html traía el catálogo escrito a mano en el HTML.
+         * Ahora, en cuanto carga la página, se sustituye por las
+         * filas reales de la tabla `productos` (leídas a través de
+         * DB.productos(), que consulta la vista `vista_catalogo`).
+         *
+         * Así, si añades, editas o desactivas un producto en la
+         * base de datos, se refleja aquí sin tocar el HTML.
+         *
+         * Si la base de datos no responde (por ejemplo, falta
+         * configurar conexion_db.js), se deja el catálogo estático
+         * de este archivo como reserva, para que la web nunca se
+         * quede en blanco.
+         */
+
+        const iconosPorCodigo = {
+            p1: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="1.5"></rect><line x1="5" y1="9" x2="19" y2="9"></line><line x1="8" y1="5.5" x2="8" y2="6.5"></line><line x1="8" y1="12.5" x2="8" y2="13.5"></line></svg>',
+            p2: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><circle cx="12" cy="13" r="5"></circle><circle cx="12" cy="13" r="2"></circle><line x1="7" y1="6" x2="9" y2="6"></line></svg>',
+            p3: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><rect x="6" y="7" width="12" height="8" rx="1"></rect><line x1="6" y1="18" x2="18" y2="18"></line></svg>',
+            p4: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><rect x="6" y="8" width="8" height="8" rx="1"></rect><line x1="17" y1="9" x2="17" y2="9.5"></line><line x1="17" y1="12" x2="17" y2="12.5"></line></svg>',
+            p5: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="12" cy="14" r="4"></circle><path d="M12 12v2l1.5 1"></path></svg>',
+            s1: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-2.4 2.4-2-2z"></path></svg>',
+            s2: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"></path></svg>',
+            s3: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 15l2.5 2.5L16 12"></path></svg>',
+            s4: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"></path><path d="M9.5 12l2 2 3.5-3.5"></path></svg>',
+            s5: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 16 0"></path><path d="M4 12v4a2 2 0 0 0 2 2h1v-6H4z"></path><path d="M20 12v4a2 2 0 0 1-2 2h-1v-6h3z"></path><path d="M9 18v1a2 2 0 0 0 2 2h2"></path></svg>'
+        };
+
+        const iconoProductoGenerico =
+            '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="18" x2="13" y2="18"></line></svg>';
+
+        const iconoServicioGenerico =
+            '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9 12.5l2 2 4-4.5"></path></svg>';
+
+        function iconoPara(codigo, tipo) {
+            return iconosPorCodigo[codigo] || (tipo === "servicio" ? iconoServicioGenerico : iconoProductoGenerico);
+        }
+
+        function crearTarjetaCatalogo(item) {
+
+            const tarjeta = document.createElement("div");
+            tarjeta.className = "card";
+            tarjeta.id = item.codigo;
+
+            tarjeta.innerHTML =
+                '<div class="card-imagen">' + iconoPara(item.codigo, item.tipo) + '</div>' +
+                '<h3>' + item.nombre + '</h3>' +
+                '<p>' + (item.descripcion || "") + '</p>' +
+                '<div class="precio">' + DB.euros(item.precio) + ' <small>/ ' + item.unidad + '</small></div>' +
+                '<button>' + (item.tipo === "servicio" ? "Contratar" : "Comprar") + '</button>';
+
+            return tarjeta;
+
+        }
+
+        async function cargarCatalogo() {
+
+            try {
+
+                const [productos, servicios] = await Promise.all([
+                    DB.productos("producto"),
+                    DB.productos("servicio")
+                ]);
+
+                const contProductos = document.querySelector(".productos-container");
+                const contServicios = document.querySelector(".servicios-container");
+                const menuProductos = document.querySelector("#productos .desplegable");
+                const menuServicios = document.querySelector("#servicios .desplegable");
+
+                if (productos && productos.length) {
+
+                    contProductos.innerHTML = "";
+                    menuProductos.innerHTML = "";
+
+                    productos.forEach(function(p) {
+
+                        contProductos.appendChild(crearTarjetaCatalogo(p));
+
+                        menuProductos.insertAdjacentHTML(
+                            "beforeend",
+                            '<a href="#' + p.codigo + '">' + p.nombre + '</a>'
+                        );
+
+                    });
+
+                }
+
+                if (servicios && servicios.length) {
+
+                    contServicios.innerHTML = "";
+                    menuServicios.innerHTML = "";
+
+                    servicios.forEach(function(s) {
+
+                        contServicios.appendChild(crearTarjetaCatalogo(s));
+
+                        menuServicios.insertAdjacentHTML(
+                            "beforeend",
+                            '<a href="#' + s.codigo + '">' + s.nombre + '</a>'
+                        );
+
+                    });
+
+                }
+
+            } catch (error) {
+
+                // Sin conexión útil a la base de datos: se conserva
+                // el catálogo estático que ya trae este HTML.
+                console.warn("No se pudo cargar el catálogo desde la base de datos, se usa el catálogo de reserva:", error);
+
+            } finally {
+
+                // Tanto si las tarjetas son las nuevas (de la BD)
+                // como si son las de reserva, hay que enganchar
+                // los botones de "Comprar" / "Contratar".
+                activarBotonesComprar();
+                activarBotonesServicios();
+
+            }
+
+        }
+
+
+        /*
+         * =========================
+         * CARRITO GUARDADO EN SERVIDOR
+         * =========================
+         *
+         * Si el usuario ha iniciado sesión y su carrito local
+         * está vacío (por ejemplo, entra desde otro navegador),
+         * se recupera la cesta que quedó guardada en la tabla
+         * `carrito_items` a través de fn_leer_carrito.
+         */
+
+        async function sincronizarCarritoDesdeServidor() {
+
+            if (!haySesionIniciada()) {
+                return;
+            }
+
+            const usuario = DB.usuarioActual();
+
+            if (usuario === "Invitado") {
+                return;
+            }
+
+            if (obtenerCarrito().length > 0) {
+                return; // ya hay carrito local, no lo sobrescribimos
+            }
+
+            try {
+
+                const remoto = await DB.leerCarrito(usuario);
+
+                if (remoto && remoto.length) {
+
+                    localStorage.setItem("carrito", JSON.stringify(remoto));
+                    renderizarCarrito();
+
+                }
+
+            } catch (error) {
+
+                console.warn("No se pudo recuperar el carrito guardado:", error);
+
+            }
+
+        }
+
+
+        /*
+         * =========================
+         * INICIALIZACIÓN
+         * =========================
+         */
+
+        actualizarVisibilidadCarrito();
+        renderizarCarrito();
+        cargarCatalogo();
+        sincronizarCarritoDesdeServidor();
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ProductNova | Mi cuenta</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="conexion_db.js"></script>
+
+    <style>
+
+        /* =========================
+           CONFIGURACIÓN GENERAL
+        ========================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --azul: #2563eb;
+            --azul-oscuro: #0f172a;
+            --azul-claro: #eff6ff;
+            --texto: #1e293b;
+            --texto-secundario: #64748b;
+            --blanco: #ffffff;
+            --fondo: #f8fafc;
+            --borde: #e2e8f0;
+            --sombra: 0 10px 30px rgba(15, 23, 42, 0.08);
+            --rojo: #dc2626;
+            --verde: #16a34a;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+            height: 76px;
+            background: rgba(255, 255, 255, 0.97);
+            border-bottom: 1px solid var(--borde);
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 7%;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            box-shadow: 0 2px 15px rgba(15, 23, 42, 0.05);
+        }
+
+        #logo {
+            margin-right: 45px;
+        }
+
+        #logo a {
+            display: flex;
+            align-items: center;
+        }
+
+        #logo img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        nav > div:not(#logo):not(#login):not(#carrito-container) {
+            position: relative;
+            margin-right: 10px;
+        }
+
+        nav > div > a {
+            display: block;
+
+            padding: 12px 16px;
+
+            color: var(--texto);
+
+            font-size: 15px;
+            font-weight: 600;
+
+            border-radius: 8px;
+
+            transition: 0.25s;
+        }
+
+        nav > div > a:hover {
+            background: var(--azul-claro);
+            color: var(--azul);
+        }
+
+        .desplegable {
+            display: none;
+
+            position: absolute;
+
+            top: calc(100% + 8px);
+            left: 0;
+
+            min-width: 190px;
+
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+
+            border-radius: 12px;
+
+            padding: 8px;
+
+            box-shadow: var(--sombra);
+
+            animation: aparecer 0.2s ease;
+        }
+
+        .desplegable a {
+            display: block;
+
+            padding: 11px 14px;
+
+            border-radius: 7px;
+
+            color: var(--texto);
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+        .desplegable a:hover {
+            background: var(--azul-claro);
+            color: var(--azul);
+            padding-left: 18px;
+        }
+
+        #productos:hover .desplegable,
+        #servicios:hover .desplegable {
+            display: block;
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =========================
+           CARRITO (icono nav)
+        ========================= */
+
+        #carrito-container {
+            position: relative;
+            margin-left: auto;
+            margin-right: 18px;
+
+            display: none;
+        }
+
+        #carrito-boton {
+            position: relative;
+
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+
+            background: var(--blanco);
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        #carrito-boton:hover {
+            background: var(--azul-claro);
+            border-color: #bfdbfe;
+        }
+
+        #carrito-boton svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--azul-oscuro);
+        }
+
+        #carrito-contador {
+            position: absolute;
+
+            top: -6px;
+            right: -6px;
+
+            min-width: 18px;
+            height: 18px;
+
+            padding: 0 4px;
+
+            background: var(--azul);
+            color: white;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: bold;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            display: none;
+        }
+
+        #carrito-panel {
+            display: none;
+
+            position: absolute;
+
+            top: calc(100% + 10px);
+            right: 0;
+
+            width: 300px;
+
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+            border-radius: 14px;
+
+            box-shadow: var(--sombra);
+
+            padding: 16px;
+
+            z-index: 200;
+
+            animation: aparecer 0.2s ease;
+        }
+
+        #carrito-panel.abierto {
+            display: block;
+        }
+
+        #carrito-panel h4 {
+            font-size: 15px;
+            color: var(--azul-oscuro);
+            margin-bottom: 12px;
+        }
+
+        #carrito-lista {
+            max-height: 220px;
+            overflow-y: auto;
+
+            margin-bottom: 14px;
+        }
+
+        .carrito-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 8px 0;
+
+            border-bottom: 1px solid var(--borde);
+
+            font-size: 13px;
+        }
+
+        .carrito-item:last-child {
+            border-bottom: none;
+        }
+
+        .carrito-item-nombre {
+            color: var(--texto);
+            font-weight: 600;
+        }
+
+        .carrito-item-cantidad {
+            color: var(--texto-secundario);
+            font-size: 12px;
+        }
+
+        .carrito-item-quitar {
+            border: none;
+            background: none;
+            color: #ef4444;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #carrito-vacio {
+            color: var(--texto-secundario);
+            font-size: 13px;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        #carrito-total {
+            display: flex;
+            justify-content: space-between;
+
+            font-weight: bold;
+
+            color: var(--azul-oscuro);
+
+            margin-bottom: 12px;
+
+            font-size: 14px;
+        }
+
+        #carrito-finalizar {
+            width: 100%;
+
+            border: none;
+
+            padding: 11px;
+
+            border-radius: 9px;
+
+            background: var(--azul);
+
+            color: white;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        #carrito-finalizar:hover {
+            background: #1d4ed8;
+        }
+
+        #carrito-finalizar:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+
+        /* =========================
+           LOGIN / MI CUENTA (nav)
+        ========================= */
+
+        #login a {
+            background: var(--azul);
+            color: white;
+
+            padding: 11px 20px;
+
+            border-radius: 9px;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            transition: 0.25s;
+
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        #login a:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(37, 99, 235, 0.3);
+        }
+
+
+        /* =========================
+           CABECERA DE LA PÁGINA
+        ========================= */
+
+        .cabecera-cuenta {
+            max-width: 900px;
+
+            margin: 0 auto;
+
+            padding: 60px 30px 20px;
+        }
+
+        .cabecera-cuenta h1 {
+            color: var(--azul-oscuro);
+
+            font-size: 34px;
+
+            margin-bottom: 6px;
+        }
+
+        .cabecera-cuenta p {
+            color: var(--texto-secundario);
+
+            font-size: 15px;
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        main {
+            max-width: 900px;
+
+            margin: auto;
+
+            padding: 20px 30px 80px;
+
+            display: grid;
+
+            grid-template-columns: 260px 1fr;
+
+            gap: 26px;
+
+            align-items: start;
+        }
+
+
+        /* =========================
+           TARJETA DE PERFIL
+        ========================= */
+
+        .tarjeta-perfil {
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+
+            border-radius: 16px;
+
+            padding: 28px 24px;
+
+            box-shadow: var(--sombra);
+
+            text-align: center;
+        }
+
+        .avatar {
+            width: 74px;
+            height: 74px;
+
+            margin: 0 auto 16px;
+
+            border-radius: 50%;
+
+            background: var(--azul-claro);
+            color: var(--azul);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 28px;
+            font-weight: bold;
+
+            text-transform: uppercase;
+        }
+
+        .tarjeta-perfil h3 {
+            color: var(--azul-oscuro);
+
+            font-size: 17px;
+
+            margin-bottom: 4px;
+
+            text-transform: capitalize;
+        }
+
+        .tarjeta-perfil p {
+            color: var(--texto-secundario);
+
+            font-size: 13px;
+
+            margin-bottom: 20px;
+        }
+
+        .boton-cerrar-sesion {
+            width: 100%;
+
+            border: 1px solid #fecaca;
+
+            background: #fef2f2;
+
+            color: var(--rojo);
+
+            padding: 11px;
+
+            border-radius: 9px;
+
+            font-size: 13px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .boton-cerrar-sesion:hover {
+            background: var(--rojo);
+            color: white;
+        }
+
+
+        /* =========================
+           TARJETAS DE CONTENIDO
+        ========================= */
+
+        .columna-derecha {
+            display: flex;
+            flex-direction: column;
+
+            gap: 22px;
+        }
+
+        .tarjeta {
+            background: var(--blanco);
+
+            border: 1px solid var(--borde);
+
+            border-radius: 16px;
+
+            padding: 26px;
+
+            box-shadow: var(--sombra);
+        }
+
+        .tarjeta h2 {
+            color: var(--azul-oscuro);
+
+            font-size: 18px;
+
+            margin-bottom: 18px;
+        }
+
+
+        /* Datos de la cuenta */
+
+        .datos-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 18px;
+        }
+
+        .dato label {
+            display: block;
+
+            font-size: 12px;
+
+            color: var(--texto-secundario);
+
+            margin-bottom: 5px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.03em;
+        }
+
+        .dato span {
+            display: block;
+
+            font-size: 14px;
+
+            color: var(--texto);
+
+            font-weight: 600;
+        }
+
+
+        /* Pedidos / carrito actual */
+
+        .pedido-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 12px 0;
+
+            border-bottom: 1px solid var(--borde);
+
+            font-size: 14px;
+        }
+
+        .pedido-item:last-child {
+            border-bottom: none;
+        }
+
+        .pedido-item-nombre {
+            font-weight: 600;
+            color: var(--texto);
+        }
+
+        .pedido-item-cantidad {
+            color: var(--texto-secundario);
+            font-size: 12px;
+        }
+
+        .pedido-item-precio {
+            color: var(--azul-oscuro);
+            font-weight: bold;
+        }
+
+        .sin-pedidos {
+            color: var(--texto-secundario);
+
+            font-size: 14px;
+
+            text-align: center;
+
+            padding: 10px 0 4px;
+        }
+
+        .ver-cesta {
+            display: inline-block;
+
+            margin-top: 16px;
+
+            color: var(--azul);
+
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .ver-cesta:hover {
+            text-decoration: underline;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            nav {
+                padding: 0 20px;
+            }
+
+            #logo {
+                margin-right: 10px;
+            }
+
+            #logo img {
+                width: 42px;
+                height: 42px;
+            }
+
+            nav > div > a {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+
+            #login a {
+                padding: 9px 12px;
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            main {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            nav {
+                height: auto;
+
+                padding: 12px 15px;
+
+                flex-wrap: wrap;
+
+                gap: 5px;
+            }
+
+            #logo {
+                margin-right: auto;
+            }
+
+            #sobreNosotros,
+            #productos,
+            #servicios {
+                display: none;
+            }
+
+            #login {
+                margin-left: 10px;
+            }
+
+            #carrito-container {
+                margin-left: 0;
+                margin-right: 8px;
+            }
+
+            #carrito-panel {
+                width: 260px;
+                right: -10px;
+            }
+
+            .cabecera-cuenta {
+                padding: 40px 20px 10px;
+            }
+
+            main {
+                padding: 20px 20px 60px;
+            }
+
+        }
+
+
+        /* HISTÓRICO DE PEDIDOS */
+
+        .pedido-fila {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .pedido-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pedido-ref {
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .pedido-fecha {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .pedido-articulos {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .pedido-importe {
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .estado {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .estado-completado {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .estado-pendiente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .estado-cancelado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav>
+
+        <div id="logo">
+
+            <a href="index.html">
+                <img src="logo.png" alt="Logo de la empresa">
+            </a>
+
+        </div>
+
+
+        <div id="sobreNosotros">
+
+            <a href="sobrenosotros.html">
+                Sobre nosotros
+            </a>
+
+        </div>
+
+
+        <div id="productos">
+
+            <a href="index.html#productos-seccion">
+                Productos ▾
+            </a>
+
+            <div class="desplegable">
+
+                <a href="index.html#p1">Producto P1</a>
+                <a href="index.html#p2">Producto P2</a>
+                <a href="index.html#p3">Producto P3</a>
+                <a href="index.html#p4">Producto P4</a>
+                <a href="index.html#p5">Producto P5</a>
+
+            </div>
+
+        </div>
+
+
+        <div id="servicios">
+
+            <a href="index.html#servicios-seccion">
+                Servicios ▾
+            </a>
+
+            <div class="desplegable">
+
+                <a href="index.html#s1">Servicio S1</a>
+                <a href="index.html#s2">Servicio S2</a>
+                <a href="index.html#s3">Servicio S3</a>
+                <a href="index.html#s4">Servicio S4</a>
+                <a href="index.html#s5">Servicio S5</a>
+
+            </div>
+
+        </div>
+
+
+        <!-- CARRITO (solo visible si hay sesión iniciada) -->
+
+        <div id="carrito-container">
+
+            <button id="carrito-boton" title="Ver cesta">
+
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+
+                <span id="carrito-contador">0</span>
+
+            </button>
+
+            <div id="carrito-panel">
+
+                <h4>Tu cesta</h4>
+
+                <div id="carrito-lista"></div>
+
+                <div id="carrito-vacio">
+                    Tu cesta está vacía.
+                </div>
+
+                <div id="carrito-total" style="display:none;">
+                    <span>Total</span>
+                    <span id="carrito-total-importe">0,00 €</span>
+                </div>
+
+                <button id="carrito-finalizar" disabled>
+                    Finalizar compra
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOGIN / MI CUENTA -->
+
+        <div id="login">
+
+            <a href="login.html" id="login-enlace">
+                Iniciar sesión
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         CABECERA
+    ========================= -->
+
+    <div class="cabecera-cuenta">
+
+        <h1>Mi cuenta</h1>
+
+        <p>
+            Consulta tus datos y gestiona tu sesión.
+        </p>
+
+    </div>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main>
+
+
+        <!-- =========================
+             TARJETA DE PERFIL
+        ========================= -->
+
+        <div class="tarjeta-perfil">
+
+            <div class="avatar" id="avatar-inicial">
+                U
+            </div>
+
+            <h3 id="nombre-usuario">
+                Usuario
+            </h3>
+
+            <p id="rol-usuario">
+                Cuenta ProductNova
+            </p>
+
+            <button class="boton-cerrar-sesion" id="boton-logout">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             COLUMNA DERECHA
+        ========================= -->
+
+        <div class="columna-derecha">
+
+
+            <!-- DATOS DE LA CUENTA -->
+
+            <div class="tarjeta">
+
+                <h2>Datos de la cuenta</h2>
+
+                <div class="datos-grid">
+
+                    <div class="dato">
+                        <label>Usuario</label>
+                        <span id="dato-usuario">—</span>
+                    </div>
+
+                    <div class="dato">
+                        <label>Estado de la sesión</label>
+                        <span id="dato-estado">—</span>
+                    </div>
+
+                    <div class="dato">
+                        <label>Recordarme activado</label>
+                        <span id="dato-recordar">—</span>
+                    </div>
+
+                    <div class="dato">
+                        <label>Artículos en la cesta</label>
+                        <span id="dato-articulos">0</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESUMEN DE LA CESTA -->
+
+            <div class="tarjeta">
+
+                <h2>Resumen de tu cesta</h2>
+
+                <div id="pedido-lista"></div>
+
+                <div id="pedido-vacio" class="sin-pedidos">
+                    Todavía no has añadido ningún producto.
+                </div>
+
+                <a href="index.html#productos-seccion" class="ver-cesta">
+                    Ir a productos →
+                </a>
+
+            </div>
+
+
+            <!-- HISTÓRICO DE PEDIDOS (viene de PostgreSQL) -->
+
+            <div class="tarjeta">
+
+                <h2>Mis pedidos</h2>
+
+                <div id="pedidos-lista"></div>
+
+                <div id="pedidos-vacio" class="sin-pedidos">
+                    Cargando tus pedidos...
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        /*
+         * =========================
+         * PROTECCIÓN DE LA PÁGINA
+         * =========================
+         *
+         * Si no hay sesión iniciada, redirigimos
+         * directamente a login.html.
+         */
+
+        function haySesionIniciada() {
+            return localStorage.getItem("sesionIniciada") === "true";
+        }
+
+        if (!haySesionIniciada()) {
+
+            window.location.href = "login.html";
+
+        }
+
+
+        const carritoContainer = document.getElementById("carrito-container");
+        const carritoBoton = document.getElementById("carrito-boton");
+        const carritoPanel = document.getElementById("carrito-panel");
+        const carritoContador = document.getElementById("carrito-contador");
+        const carritoLista = document.getElementById("carrito-lista");
+        const carritoVacio = document.getElementById("carrito-vacio");
+        const carritoTotal = document.getElementById("carrito-total");
+        const carritoTotalImporte = document.getElementById("carrito-total-importe");
+        const carritoFinalizar = document.getElementById("carrito-finalizar");
+        const loginEnlace = document.getElementById("login-enlace");
+
+
+        /*
+         * =========================
+         * MOSTRAR ICONO DE CESTA
+         * =========================
+         */
+
+        function actualizarVisibilidadCarrito() {
+
+            if (haySesionIniciada()) {
+
+                carritoContainer.style.display = "flex";
+                carritoContainer.style.alignItems = "center";
+
+                loginEnlace.textContent = "Mi cuenta";
+                loginEnlace.href = "cuenta.html";
+
+            } else {
+
+                carritoContainer.style.display = "none";
+                carritoPanel.classList.remove("abierto");
+
+                loginEnlace.textContent = "Iniciar sesión";
+                loginEnlace.href = "login.html";
+
+            }
+
+        }
+
+
+        /*
+         * =========================
+         * CARRITO (localStorage)
+         * =========================
+         */
+
+        function obtenerCarrito() {
+
+            const datos = localStorage.getItem("carrito");
+
+            return datos ? JSON.parse(datos) : [];
+
+        }
+
+        function guardarCarrito(carrito) {
+
+            localStorage.setItem("carrito", JSON.stringify(carrito));
+
+        }
+
+        function quitarDelCarrito(nombre) {
+
+            let carrito = obtenerCarrito();
+
+            carrito = carrito.filter(function(item) {
+                return item.nombre !== nombre;
+            });
+
+            guardarCarrito(carrito);
+
+            renderizarCarrito();
+            renderizarResumenPedido();
+
+        }
+
+        function renderizarCarrito() {
+
+            const carrito = obtenerCarrito();
+
+            const totalUnidades = carrito.reduce(function(suma, item) {
+                return suma + item.cantidad;
+            }, 0);
+
+            if (totalUnidades > 0) {
+                carritoContador.textContent = totalUnidades;
+                carritoContador.style.display = "flex";
+            } else {
+                carritoContador.style.display = "none";
+            }
+
+            carritoLista.innerHTML = "";
+
+            if (carrito.length === 0) {
+
+                carritoVacio.style.display = "block";
+                carritoTotal.style.display = "none";
+                carritoFinalizar.disabled = true;
+
+                return;
+
+            }
+
+            carritoVacio.style.display = "none";
+            carritoTotal.style.display = "flex";
+            carritoFinalizar.disabled = false;
+
+            let total = 0;
+
+            carrito.forEach(function(item) {
+
+                total += item.precio * item.cantidad;
+
+                const fila = document.createElement("div");
+                fila.className = "carrito-item";
+
+                fila.innerHTML =
+                    '<div>' +
+                        '<div class="carrito-item-nombre">' + item.nombre + '</div>' +
+                        '<div class="carrito-item-cantidad">' + item.cantidad + ' x ' + item.precio.toFixed(2).replace(".", ",") + ' €</div>' +
+                    '</div>' +
+                    '<button class="carrito-item-quitar" data-nombre="' + item.nombre + '">Quitar</button>';
+
+                carritoLista.appendChild(fila);
+
+            });
+
+            carritoTotalImporte.textContent = total.toFixed(2).replace(".", ",") + " €";
+
+            carritoLista.querySelectorAll(".carrito-item-quitar").forEach(function(boton) {
+
+                boton.addEventListener("click", function() {
+                    quitarDelCarrito(boton.dataset.nombre);
+                });
+
+            });
+
+        }
+
+        carritoBoton.addEventListener("click", function(evento) {
+
+            evento.stopPropagation();
+
+            carritoPanel.classList.toggle("abierto");
+
+        });
+
+        document.addEventListener("click", function(evento) {
+
+            if (!carritoContainer.contains(evento.target)) {
+                carritoPanel.classList.remove("abierto");
+            }
+
+        });
+
+        carritoFinalizar.addEventListener("click", function() {
+
+            window.location.href = "pagos.html?desdeCesta=1";
+
+        });
+
+
+        /*
+         * =========================
+         * DATOS DE LA CUENTA
+         * =========================
+         */
+
+        function cargarDatosCuenta() {
+
+            const usuario =
+                sessionStorage.getItem("usuarioLogueado") ||
+                localStorage.getItem("usuarioRecordado") ||
+                "Usuario";
+
+            /* El perfil (nombre real y rol) lo guardó conexion_db.js
+               al iniciar sesión, con los datos que devolvió fn_login. */
+
+            const perfil = DB.perfil();
+
+            const nombreMostrado = perfil ? perfil.nombre : usuario;
+
+            document.getElementById("nombre-usuario").textContent = nombreMostrado;
+            document.getElementById("dato-usuario").textContent = usuario;
+
+            document.getElementById("avatar-inicial").textContent =
+                nombreMostrado.charAt(0).toUpperCase();
+
+            if (perfil) {
+                document.getElementById("rol-usuario").textContent =
+                    perfil.rol === "admin"
+                        ? "Administrador de ProductNova"
+                        : "Cuenta de cliente";
+            }
+
+            const sesionActiva =
+                sessionStorage.getItem("usuarioLogueado") !== null;
+
+            document.getElementById("dato-estado").textContent =
+                sesionActiva ? "Sesión activa en este navegador" : "Sesión recordada";
+
+            const recordado =
+                localStorage.getItem("usuarioRecordado") !== null;
+
+            document.getElementById("dato-recordar").textContent =
+                recordado ? "Sí" : "No";
+
+        }
+
+
+        /*
+         * =========================
+         * RESUMEN DE PEDIDO / CESTA
+         * =========================
+         */
+
+        function renderizarResumenPedido() {
+
+            const carrito = obtenerCarrito();
+
+            const pedidoLista = document.getElementById("pedido-lista");
+            const pedidoVacio = document.getElementById("pedido-vacio");
+
+            const totalUnidades = carrito.reduce(function(suma, item) {
+                return suma + item.cantidad;
+            }, 0);
+
+            document.getElementById("dato-articulos").textContent = totalUnidades;
+
+            pedidoLista.innerHTML = "";
+
+            if (carrito.length === 0) {
+
+                pedidoVacio.style.display = "block";
+
+                return;
+
+            }
+
+            pedidoVacio.style.display = "none";
+
+            carrito.forEach(function(item) {
+
+                const subtotal = (item.precio * item.cantidad)
+                    .toFixed(2)
+                    .replace(".", ",");
+
+                const fila = document.createElement("div");
+                fila.className = "pedido-item";
+
+                fila.innerHTML =
+                    '<div>' +
+                        '<div class="pedido-item-nombre">' + item.nombre + '</div>' +
+                        '<div class="pedido-item-cantidad">' + item.cantidad + ' unidad(es)</div>' +
+                    '</div>' +
+                    '<div class="pedido-item-precio">' + subtotal + ' €</div>';
+
+                pedidoLista.appendChild(fila);
+
+            });
+
+        }
+
+
+        /*
+         * =========================
+         * CERRAR SESIÓN
+         * =========================
+         */
+
+        document.getElementById("boton-logout").addEventListener("click", function() {
+
+            DB.cerrarSesion();
+
+            window.location.href = "index.html";
+
+        });
+
+
+        /*
+         * =========================
+         * INICIALIZACIÓN
+         * =========================
+         */
+
+        /*
+         * =========================
+         * HISTÓRICO DE PEDIDOS
+         * (se lee de PostgreSQL)
+         * =========================
+         */
+
+        function claseEstado(estado) {
+
+            if (estado === "Completado" || estado === "Enviado") {
+                return "estado-completado";
+            }
+
+            if (estado === "Cancelado") {
+                return "estado-cancelado";
+            }
+
+            return "estado-pendiente";
+        }
+
+
+        async function cargarPedidos() {
+
+            const lista = document.getElementById("pedidos-lista");
+            const vacio = document.getElementById("pedidos-vacio");
+
+            const usuario = DB.usuarioActual();
+
+
+            if (usuario === "Invitado") {
+
+                vacio.textContent =
+                    "Inicia sesión para ver tu historial de pedidos.";
+
+                return;
+            }
+
+
+            /* fn_pedidos_usuario devuelve cada pedido con sus
+               líneas ya agrupadas en un JSON. */
+
+            const pedidos = await DB.pedidosDe(usuario);
+
+
+            if (!pedidos || pedidos.length === 0) {
+
+                vacio.textContent = "Todavía no has realizado ningún pedido.";
+                vacio.style.display = "block";
+
+                return;
+            }
+
+
+            vacio.style.display = "none";
+            lista.innerHTML = "";
+
+
+            pedidos.forEach(function(pedido) {
+
+                const detalle = (pedido.detalle || [])
+                    .map(function(linea) {
+                        return linea.cantidad + "x " + linea.nombre;
+                    })
+                    .join(", ");
+
+
+                const fila = document.createElement("div");
+                fila.className = "pedido-fila";
+
+                fila.innerHTML =
+                    '<div class="pedido-cabecera">' +
+                        '<div>' +
+                            '<span class="pedido-ref">Pedido #' + pedido.id + '</span> ' +
+                            '<span class="pedido-fecha">' + DB.fecha(pedido.creado_en) + '</span>' +
+                        '</div>' +
+                        '<span class="estado ' + claseEstado(pedido.estado) + '">' +
+                            pedido.estado.replace("_", " ") +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="pedido-cabecera">' +
+                        '<span class="pedido-articulos">' +
+                            (detalle || pedido.articulos + " artículo(s)") +
+                        '</span>' +
+                        '<span class="pedido-importe">' + DB.euros(pedido.total) + '</span>' +
+                    '</div>';
+
+                lista.appendChild(fila);
+
+            });
+
+        }
+
+
+        /*
+         * =========================
+         * INICIALIZACIÓN
+         * =========================
+         */
+
+        actualizarVisibilidadCarrito();
+        renderizarCarrito();
+        cargarDatosCuenta();
+        renderizarResumenPedido();
+        cargarPedidos();
+
+    </script>
+
+</body>
+
+</html>

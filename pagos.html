@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ProductNova | Checkout Seguro</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Tu conexión a Supabase -->
+    <script src="conexion_db.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --azul-brand: #2563eb;
+            --azul-hover: #1d4ed8;
+            --azul-oscuro: #0f172a;
+            --texto-principal: #1e293b;
+            --texto-secundario: #64748b;
+            --fondo-body: #f1f5f9;
+            --blanco: #ffffff;
+            --borde: #e2e8f0;
+
+            --stripe: #635bff;
+
+            --exito-bg: #f0fdf4;
+            --exito-border: #bbf7d0;
+            --exito-texto: #16a34a;
+
+            --error-bg: #fef2f2;
+            --error-border: #fecaca;
+            --error-texto: #dc2626;
+        }
+
+        body {
+            background-color: var(--fondo-body);
+            color: var(--texto-principal);
+            min-height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            padding: 40px 20px;
+        }
+
+        .header-checkout {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header-checkout h1 {
+            color: var(--azul-oscuro);
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header-checkout p {
+            color: var(--texto-secundario);
+            font-size: 14px;
+            margin-top: 5px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 6px;
+        }
+
+        .checkout-container {
+            width: 100%;
+            max-width: 950px;
+
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+
+            gap: 30px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--blanco);
+            border-radius: 16px;
+
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+            overflow: hidden;
+            border: 1px solid var(--borde);
+        }
+
+        .panel-header {
+            padding: 20px 25px;
+
+            border-bottom: 1px solid var(--borde);
+
+            background-color: #f8fafc;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            color: var(--azul-oscuro);
+        }
+
+        .panel-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            margin-bottom: 8px;
+
+            color: var(--texto-principal);
+        }
+
+        .form-control {
+            width: 100%;
+
+            padding: 14px;
+
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+
+            font-size: 14px;
+
+            transition: all 0.3s ease;
+
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+
+            border-color: var(--azul-brand);
+
+            background-color: var(--blanco);
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        /*
+         * TARJETA STRIPE
+         */
+
+        .stripe-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 18px 20px;
+
+            border: 2px solid var(--stripe);
+            border-radius: 12px;
+
+            background-color: #f7f5ff;
+
+            margin-bottom: 25px;
+        }
+
+        .stripe-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .stripe-logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -1px;
+
+            color: var(--stripe);
+        }
+
+        .stripe-badge {
+            font-size: 11px;
+
+            padding: 5px 8px;
+
+            border-radius: 999px;
+
+            background: #ebe9ff;
+            color: #5148d8;
+
+            font-weight: 700;
+        }
+
+        .detalle-pago {
+            background-color: #f8fafc;
+
+            border: 1px dashed var(--borde);
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            margin-bottom: 25px;
+
+            font-size: 14px;
+
+            color: var(--texto-secundario);
+
+            text-align: center;
+
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .detalle-pago strong {
+            color: var(--texto-principal);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-pagar {
+            width: 100%;
+
+            padding: 16px;
+
+            background-color: var(--stripe);
+
+            color: white;
+
+            border: none;
+
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+
+            box-shadow:
+                0 4px 12px rgba(99, 91, 255, 0.25);
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .btn-pagar:hover {
+            background-color: #5148d8;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 6px 16px rgba(99, 91, 255, 0.35);
+        }
+
+        .btn-pagar:active {
+            transform: translateY(0);
+        }
+
+        .btn-pagar:disabled {
+            background-color: #94a3b8;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+            box-shadow: none;
+        }
+
+        /*
+         * RESUMEN
+         */
+
+        .resumen-list {
+            margin-bottom: 20px;
+        }
+
+        .resumen-item {
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+
+            font-size: 14px;
+
+            color: var(--texto-secundario);
+        }
+
+        .resumen-item span:last-child {
+            white-space: nowrap;
+
+            color: var(--texto-principal);
+
+            font-weight: 600;
+        }
+
+        .resumen-total {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding-top: 20px;
+
+            border-top: 2px dashed var(--borde);
+
+            font-size: 18px;
+
+            font-weight: 800;
+
+            color: var(--azul-oscuro);
+        }
+
+        .alerta {
+            display: none;
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            margin-bottom: 25px;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            text-align: center;
+        }
+
+        .alerta.exito {
+            display: block;
+
+            background-color: var(--exito-bg);
+
+            border: 1px solid var(--exito-border);
+
+            color: var(--exito-texto);
+        }
+
+        .alerta.error {
+            display: block;
+
+            background-color: var(--error-bg);
+
+            border: 1px solid var(--error-border);
+
+            color: var(--error-texto);
+        }
+
+        .volver {
+            display: inline-block;
+
+            margin-top: 25px;
+
+            color: var(--texto-secundario);
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            transition: color 0.2s;
+        }
+
+        .volver:hover {
+            color: var(--azul-brand);
+        }
+
+        /*
+         * SPINNER
+         */
+
+        .spinner {
+            display: none;
+
+            width: 20px;
+            height: 20px;
+
+            border: 3px solid rgba(255,255,255,0.3);
+
+            border-radius: 50%;
+
+            border-top-color: #fff;
+
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .seguridad {
+            margin-top: 15px;
+
+            text-align: center;
+
+            font-size: 12px;
+
+            color: var(--texto-secundario);
+        }
+
+        @media (max-width: 850px) {
+
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================
+         CABECERA
+         ========================================= -->
+
+    <div class="header-checkout">
+
+        <h1>ProductNova</h1>
+
+        <p>
+
+            <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+
+                <rect
+                    x="3"
+                    y="11"
+                    width="18"
+                    height="11"
+                    rx="2"
+                    ry="2">
+                </rect>
+
+                <path
+                    d="M7 11V7a5 5 0 0 1 10 0v4">
+                </path>
+
+            </svg>
+
+            Pago seguro mediante Stripe
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         CONTENEDOR PRINCIPAL
+         ========================================= -->
+
+    <div class="checkout-container">
+
+
+        <!-- =====================================
+             FORMULARIO
+             ===================================== -->
+
+        <main class="checkout-form">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>
+                        Datos de Envío y Pago
+                    </h2>
+
+                </div>
+
+
+                <div class="panel-body">
+
+                    <div
+                        id="alerta-mensaje"
+                        class="alerta">
+                    </div>
+
+
+                    <form id="form-checkout">
+
+
+                        <!-- =========================
+                             DATOS PERSONALES
+                             ========================= -->
+
+                        <div class="form-group">
+
+                            <label for="nombre_completo">
+                                Nombre Completo
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nombre_completo"
+                                class="form-control"
+                                required
+                                autocomplete="name"
+                                placeholder="Ej: Juan Pérez García">
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="direccion">
+                                Dirección de Entrega
+                            </label>
+
+                            <input
+                                type="text"
+                                id="direccion"
+                                class="form-control"
+                                required
+                                autocomplete="street-address"
+                                placeholder="Calle, Número, Piso, Ciudad, Código Postal">
+
+                        </div>
+
+
+                        <!-- =========================
+                             STRIPE
+                             ========================= -->
+
+                        <div class="form-group">
+
+                            <label>
+                                Método de pago
+                            </label>
+
+
+                            <div class="stripe-card">
+
+                                <div class="stripe-info">
+
+                                    <div class="stripe-logo">
+                                        stripe
+                                    </div>
+
+                                    <span>
+                                        Pago seguro
+                                    </span>
+
+                                </div>
+
+
+                                <div class="stripe-badge">
+                                    CHECKOUT
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detalle-pago">
+
+                            <svg
+                                style="margin-bottom:10px"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#635bff"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+
+                                <rect
+                                    x="3"
+                                    y="11"
+                                    width="18"
+                                    height="11"
+                                    rx="2"
+                                    ry="2">
+                                </rect>
+
+                                <path
+                                    d="M7 11V7a5 5 0 0 1 10 0v4">
+                                </path>
+
+                            </svg>
+
+                            <p>
+                                Serás redirigido a
+                                <strong>Stripe Checkout</strong>
+                                para completar el pago de forma segura.
+                            </p>
+
+                            <br>
+
+                            <p>
+                                Stripe mostrará los métodos de pago
+                                disponibles para tu compra.
+                            </p>
+
+                        </div>
+
+
+                        <!-- =========================
+                             BOTÓN
+                             ========================= -->
+
+                        <button
+                            type="submit"
+                            id="btn-submit"
+                            class="btn-pagar">
+
+                            <span id="btn-text">
+                                Pagar con Stripe
+                            </span>
+
+                            <div
+                                id="btn-spinner"
+                                class="spinner">
+                            </div>
+
+                        </button>
+
+
+                        <div class="seguridad">
+
+                            🔒 Tus datos de pago son procesados
+                            directamente por Stripe.
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <div style="text-align:center;">
+
+                <a
+                    href="index.html"
+                    class="volver">
+
+                    ← Volver a la tienda
+
+                </a>
+
+            </div>
+
+        </main>
+
+
+        <!-- =====================================
+             RESUMEN DEL PEDIDO
+             ===================================== -->
+
+        <aside class="order-summary">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>
+                        Resumen del Pedido
+                    </h2>
+
+                </div>
+
+
+                <div class="panel-body">
+
+                    <div
+                        class="resumen-list"
+                        id="lista-articulos">
+
+                        <div class="resumen-item">
+
+                            <span>
+                                Artículos de tu cesta
+                            </span>
+
+                            <span>
+                                Calculando...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="resumen-item">
+
+                        <span>
+                            Gastos de envío
+                        </span>
+
+                        <span
+                            style="
+                                color:var(--exito-texto);
+                                font-weight:bold;
+                            ">
+
+                            Gratis
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="resumen-total">
+
+                        <span>
+                            Total a pagar
+                        </span>
+
+                        <span id="total-pagar">
+                            0.00 €
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+
+    <!-- =========================================
+         JAVASCRIPT
+         ========================================= -->
+
+    <script>
+
+        /*
+         * =========================================
+         * VARIABLES
+         * =========================================
+         */
+
+        let totalPedido = 0;
+
+        let articulosPedido = [];
+
+
+        /*
+         * =========================================
+         * ALERTAS
+         * =========================================
+         */
+
+        function mostrarAlerta(texto, tipo) {
+
+            const alerta =
+                document.getElementById("alerta-mensaje");
+
+            alerta.textContent = texto;
+
+            alerta.className =
+                "alerta " + tipo;
+
+            alerta.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+
+        /*
+         * =========================================
+         * FORMATEAR EUROS
+         * =========================================
+         */
+
+        function euros(valor) {
+
+            return Number(valor).toLocaleString(
+                "es-ES",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            ) + " €";
+
+        }
+
+
+        /*
+         * =========================================
+         * ESCAPAR HTML
+         *
+         * Evita insertar directamente nombres
+         * provenientes de URL/localStorage.
+         * =========================================
+         */
+
+        function escaparHTML(valor) {
+
+            return String(valor)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /*
+         * =========================================
+         * CARGAR CARRITO
+         * =========================================
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                const parametros =
+                    new URLSearchParams(
+                        window.location.search
+                    );
+
+                const listaArticulos =
+                    document.getElementById(
+                        "lista-articulos"
+                    );
+
+
+                /*
+                 * -------------------------------
+                 * CASO 1:
+                 * carrito en URL
+                 * -------------------------------
+                 */
+
+                if (parametros.has("carrito")) {
+
+                    try {
+
+                        const carrito =
+                            JSON.parse(
+                                decodeURIComponent(
+                                    parametros.get("carrito")
+                                )
+                            );
+
+
+                        if (
+                            !Array.isArray(carrito) ||
+                            carrito.length === 0
+                        ) {
+                            throw new Error(
+                                "Carrito vacío"
+                            );
+                        }
+
+
+                        articulosPedido = carrito;
+
+                        listaArticulos.innerHTML = "";
+
+
+                        carrito.forEach(item => {
+
+                            const precio =
+                                Number(item.precio) || 0;
+
+                            const cantidad =
+                                Number(item.cantidad) || 0;
+
+                            const subtotal =
+                                precio * cantidad;
+
+                            totalPedido += subtotal;
+
+
+                            listaArticulos.innerHTML += `
+
+                                <div class="resumen-item">
+
+                                    <span>
+                                        ${cantidad}x
+                                        ${escaparHTML(item.nombre)}
+                                    </span>
+
+                                    <span>
+                                        ${euros(subtotal)}
+                                    </span>
+
+                                </div>
+
+                            `;
+
+                        });
+
+                    } catch (error) {
+
+                        mostrarAlerta(
+                            "No se pudo leer el carrito.",
+                            "error"
+                        );
+
+                        desactivarPago();
+
+                    }
+
+                }
+
+
+                /*
+                 * -------------------------------
+                 * CASO 2:
+                 * compra directa
+                 *
+                 * pagos.html?
+                 * producto=...
+                 * precio=...
+                 * -------------------------------
+                 */
+
+                else if (
+                    parametros.has("producto")
+                ) {
+
+                    const nombre =
+                        parametros.get("producto");
+
+                    const precio =
+                        parseFloat(
+                            parametros.get("precio")
+                        ) || 0;
+
+
+                    if (!nombre || precio <= 0) {
+
+                        mostrarAlerta(
+                            "Los datos del producto no son válidos.",
+                            "error"
+                        );
+
+                        desactivarPago();
+
+                        return;
+                    }
+
+
+                    articulosPedido = [
+                        {
+                            nombre: nombre,
+                            precio: precio,
+                            cantidad: 1
+                        }
+                    ];
+
+
+                    totalPedido = precio;
+
+
+                    listaArticulos.innerHTML = `
+
+                        <div class="resumen-item">
+
+                            <span>
+                                1x
+                                ${escaparHTML(nombre)}
+                            </span>
+
+                            <span>
+                                ${euros(precio)}
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                /*
+                 * -------------------------------
+                 * CASO 3:
+                 * localStorage
+                 * -------------------------------
+                 */
+
+                else {
+
+                    try {
+
+                        const guardado =
+                            JSON.parse(
+                                localStorage.getItem(
+                                    "carrito"
+                                ) || "[]"
+                            );
+
+
+                        if (
+                            Array.isArray(guardado) &&
+                            guardado.length > 0
+                        ) {
+
+                            articulosPedido =
+                                guardado;
+
+                            listaArticulos.innerHTML =
+                                "";
+
+
+                            guardado.forEach(item => {
+
+                                const precio =
+                                    Number(item.precio) || 0;
+
+                                const cantidad =
+                                    Number(item.cantidad) || 0;
+
+                                const subtotal =
+                                    precio * cantidad;
+
+                                totalPedido += subtotal;
+
+
+                                listaArticulos.innerHTML += `
+
+                                    <div class="resumen-item">
+
+                                        <span>
+                                            ${cantidad}x
+                                            ${escaparHTML(item.nombre)}
+                                        </span>
+
+                                        <span>
+                                            ${euros(subtotal)}
+                                        </span>
+
+                                    </div>
+
+                                `;
+
+                            });
+
+                        } else {
+
+                            mostrarCarritoVacio();
+
+                        }
+
+                    } catch (error) {
+
+                        mostrarCarritoVacio();
+
+                    }
+
+                }
+
+
+                /*
+                 * Mostrar total
+                 */
+
+                document.getElementById(
+                    "total-pagar"
+                ).textContent =
+                    euros(totalPedido);
+
+
+                /*
+                 * Si no hay productos
+                 */
+
+                if (
+                    !articulosPedido ||
+                    articulosPedido.length === 0 ||
+                    totalPedido <= 0
+                ) {
+
+                    desactivarPago();
+
+                }
+
+            }
+        );
+
+
+        /*
+         * =========================================
+         * CARRITO VACÍO
+         * =========================================
+         */
+
+        function mostrarCarritoVacio() {
+
+            const lista =
+                document.getElementById(
+                    "lista-articulos"
+                );
+
+            lista.innerHTML = `
+
+                <div class="resumen-item">
+
+                    <span>
+                        Tu cesta está vacía
+                    </span>
+
+                    <span>
+                        0.00 €
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /*
+         * =========================================
+         * DESACTIVAR PAGO
+         * =========================================
+         */
+
+        function desactivarPago() {
+
+            document.getElementById(
+                "btn-submit"
+            ).disabled = true;
+
+        }
+
+
+        /*
+         * =========================================
+         * ENVIAR A STRIPE
+         * =========================================
+         */
+
+        document
+            .getElementById("form-checkout")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    /*
+                     * ---------------------------------
+                     * VALIDACIÓN BÁSICA
+                     * ---------------------------------
+                     */
+
+                    if (
+                        !articulosPedido ||
+                        articulosPedido.length === 0
+                    ) {
+
+                        mostrarAlerta(
+                            "Tu cesta está vacía.",
+                            "error"
+                        );
+
+                        return;
+
+                    }
+
+
+                    const nombreEnvio =
+                        document
+                            .getElementById(
+                                "nombre_completo"
+                            )
+                            .value
+                            .trim();
+
+
+                    const direccionEnvio =
+                        document
+                            .getElementById(
+                                "direccion"
+                            )
+                            .value
+                            .trim();
+
+
+                    if (!nombreEnvio) {
+
+                        mostrarAlerta(
+                            "Introduce tu nombre completo.",
+                            "error"
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (!direccionEnvio) {
+
+                        mostrarAlerta(
+                            "Introduce tu dirección de entrega.",
+                            "error"
+                        );
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * ---------------------------------
+                     * BOTÓN EN CARGA
+                     * ---------------------------------
+                     */
+
+                    const btnSubmit =
+                        document.getElementById(
+                            "btn-submit"
+                        );
+
+                    const btnText =
+                        document.getElementById(
+                            "btn-text"
+                        );
+
+                    const spinner =
+                        document.getElementById(
+                            "btn-spinner"
+                        );
+
+
+                    btnSubmit.disabled = true;
+
+                    btnText.style.display = "none";
+
+                    spinner.style.display = "block";
+
+
+                    try {
+
+                        /*
+                         * ---------------------------------
+                         * USUARIO ACTUAL
+                         * ---------------------------------
+                         */
+
+                        const usuarioActual =
+
+                            sessionStorage.getItem(
+                                "usuarioLogueado"
+                            )
+
+                            ||
+
+                            localStorage.getItem(
+                                "usuarioRecordado"
+                            )
+
+                            ||
+
+                            "Invitado";
+
+
+                        /*
+                         * ---------------------------------
+                         * COMPROBAR SUPABASE
+                         * ---------------------------------
+                         */
+
+                        if (
+                            typeof supabase ===
+                            "undefined"
+                        ) {
+
+                            throw new Error(
+                                "No se ha podido inicializar Supabase."
+                            );
+
+                        }
+
+
+                        /*
+                         * ---------------------------------
+                         * IMPORTANTE
+                         *
+                         * El navegador NO debe crear
+                         * directamente el pago.
+                         *
+                         * Llamamos a la Edge Function.
+                         * ---------------------------------
+                         */
+
+                        const {
+                            data,
+                            error
+                        } =
+                            await supabase.functions.invoke(
+                                "crear-checkout-stripe",
+                                {
+
+                                    body: {
+
+                                        usuario:
+                                            usuarioActual,
+
+                                        nombre:
+                                            nombreEnvio,
+
+                                        direccion:
+                                            direccionEnvio,
+
+                                        items:
+                                            articulosPedido
+
+                                    }
+
+                                }
+                            );
+
+
+                        /*
+                         * ---------------------------------
+                         * ERROR SUPABASE
+                         * ---------------------------------
+                         */
+
+                        if (error) {
+
+                            console.error(
+                                "Error Supabase:",
+                                error
+                            );
+
+                            throw new Error(
+                                "No se pudo iniciar el pago."
+                            );
+
+                        }
+
+
+                        /*
+                         * ---------------------------------
+                         * COMPROBAR URL STRIPE
+                         * ---------------------------------
+                         */
+
+                        if (
+                            !data ||
+                            !data.url
+                        ) {
+
+                            console.error(
+                                "Respuesta Stripe:",
+                                data
+                            );
+
+                            throw new Error(
+                                "Stripe no devolvió la URL de pago."
+                            );
+
+                        }
+
+
+                        /*
+                         * ---------------------------------
+                         * LIMPIAR ALERTAS
+                         * ---------------------------------
+                         */
+
+                        const alerta =
+                            document.getElementById(
+                                "alerta-mensaje"
+                            );
+
+                        alerta.style.display =
+                            "none";
+
+
+                        /*
+                         * ---------------------------------
+                         * REDIRECCIÓN
+                         *
+                         * El usuario abandona tu web
+                         * y entra en Stripe Checkout.
+                         * ---------------------------------
+                         */
+
+                        window.location.href =
+                            data.url;
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Error iniciando Stripe:",
+                            error
+                        );
+
+
+                        mostrarAlerta(
+                            error.message ||
+                            "No se pudo iniciar el pago.",
+                            "error"
+                        );
+
+
+                        /*
+                         * Restaurar botón
+                         */
+
+                        btnSubmit.disabled =
+                            false;
+
+                        btnText.style.display =
+                            "block";
+
+                        spinner.style.display =
+                            "none";
+
+                    }
+
+                }
+            );
+
+
+        /*
+         * =========================================
+         * DETECTAR CANCELACIÓN DE STRIPE
+         * =========================================
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                const parametros =
+                    new URLSearchParams(
+                        window.location.search
+                    );
+
+
+                if (
+                    parametros.get("cancelado")
+                    === "1"
+                ) {
+
+                    mostrarAlerta(
+                        "El pago fue cancelado. No se ha realizado ningún cargo.",
+                        "error"
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>
