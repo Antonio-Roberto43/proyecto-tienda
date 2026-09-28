@@ -1307,7 +1307,7 @@
 
                             ||
 
-                            "Invitado";
+                            "";
 
 
                         /*
@@ -1339,52 +1339,60 @@
                          * ---------------------------------
                          */
 
-                        const {
-                            data,
-                            error
-                        } =
-                            await supabase.functions.invoke(
+                        const { data, error } =
+                            await _supabase.functions.invoke(
                                 "crear-checkout-stripe",
                                 {
-
                                     body: {
-
-                                        usuario:
-                                            usuarioActual,
-
-                                        nombre:
-                                            nombreEnvio,
-
-                                        direccion:
-                                            direccionEnvio,
-
-                                        items:
-                                            articulosPedido
-
+                                        usuario: usuarioActual,
+                                        nombre: nombreEnvio,
+                                        direccion: direccionEnvio,
+                                        items: articulosPedido
                                     }
-
                                 }
                             );
 
-
-                        /*
-                         * ---------------------------------
-                         * ERROR SUPABASE
-                         * ---------------------------------
-                         */
+                        console.log("RESPUESTA STRIPE:", data);
+                        console.log("ERROR STRIPE:", error);
 
                         if (error) {
+                            console.error("Error completo:", error);
 
-                            console.error(
-                                "Error Supabase:",
-                                error
+                            let detalle = error.message || "Error desconocido";
+
+                            try {
+                                if (error.context) {
+                                    const cuerpo = await error.context.json();
+                                    console.error("Respuesta de la Edge Function:", cuerpo);
+
+                                    if (cuerpo?.error) {
+                                        detalle = cuerpo.error;
+                                    }
+                                }
+                            } catch (e) {
+                                console.error("No se pudo leer la respuesta:", e);
+                            }
+
+                            mostrarAlerta(
+                                "Error al iniciar el pago: " + detalle,
+                                "error"
                             );
 
-                            throw new Error(
-                                "No se pudo iniciar el pago."
-                            );
-
+                            return;
                         }
+
+                        if (!data?.url) {
+                            console.error("La función no devolvió una URL:", data);
+
+                            mostrarAlerta(
+                                "Stripe no devolvió una URL de pago.",
+                                "error"
+                            );
+
+                            return;
+                        }
+
+                        window.location.href = data.url;
 
 
                         /*
