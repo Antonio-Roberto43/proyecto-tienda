@@ -177,7 +177,7 @@ const DB = {
     async crearPedido({ usuario, nombre, direccion, metodo, items, telefono }) {
 
         const { data, error } = await _supabase.rpc("fn_crear_pedido", {
-            p_usuario:      usuario || "Invitado",
+            p_usuario:      usuario,
             p_nombre_envio: nombre,
             p_direccion:    direccion,
             p_metodo_pago:  metodo,
