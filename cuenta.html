@@ -1067,10 +1067,24 @@
             return localStorage.getItem("sesionIniciada") === "true";
         }
 
+        // Si Stripe ha confirmado el pago, vaciar la cesta local
+        const parametrosPago = new URLSearchParams(
+            window.location.search
+        );
+
+        if (parametrosPago.get("pago") === "exitoso") {
+            localStorage.removeItem("carrito");
+
+            // Limpiar la URL para que no vuelva a procesarse
+            window.history.replaceState(
+                {},
+                document.title,
+                "cuenta.html"
+            );
+        }
+
         if (!haySesionIniciada()) {
-
             window.location.href = "login.html";
-
         }
 
 
