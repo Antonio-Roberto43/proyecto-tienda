@@ -430,7 +430,8 @@
 
         }
 
-        #registroPanel {
+        #registroPanel,
+        #olvidoPanel {
 
             display: none;
 
@@ -561,7 +562,7 @@
         </div>
 
 
-        <div class="login-panel">
+        <div class="login-panel" id="loginPanel">
 
             <h1>Bienvenido</h1>
 
@@ -641,7 +642,7 @@
                     </label>
 
 
-                    <a href="#" onclick="olvidarPassword(event)">
+                    <a href="#" onclick="mostrarOlvido(event)">
                         ¿Has olvidado tu contraseña?
                     </a>
 
@@ -839,6 +840,64 @@
         </div>
 
 
+        <!-- =========================
+             PANEL: CONTRASEÑA OLVIDADA
+        ========================= -->
+
+        <div class="login-panel" id="olvidoPanel">
+
+            <h1>Recuperar contraseña</h1>
+
+            <p class="subtitulo">
+                Te enviaremos un enlace a tu correo para elegir una contraseña nueva
+            </p>
+
+
+            <div id="mensajeOlvido" class="mensaje"></div>
+
+
+            <form id="olvidoForm">
+
+                <div class="campo">
+
+                    <label for="olvido_usuario">
+                        Usuario o correo electrónico
+                    </label>
+
+                    <input
+                        type="text"
+                        id="olvido_usuario"
+                        name="olvido_usuario"
+                        placeholder="Tu usuario o tu email"
+                        autocomplete="username"
+                        required
+                    >
+
+                    <span class="ayuda-campo">Si la cuenta existe, te llegará un correo en unos segundos.</span>
+
+                </div>
+
+
+                <button type="submit" class="boton">
+                    Enviar enlace de recuperación
+                </button>
+
+
+            </form>
+
+
+            <div class="separador">
+                <span>o</span>
+            </div>
+
+
+            <div class="cambiar-modo">
+                <button type="button" onclick="mostrarLogin()">← Volver al inicio de sesión</button>
+            </div>
+
+        </div>
+
+
         <div class="copyright">
 
             © 2026 ProductNova · Todos los derechos reservados.
@@ -933,15 +992,37 @@
         }
 
 
+        function mostrarMensajeOlvido(texto, tipo) {
+
+            const mensaje =
+                document.getElementById("mensajeOlvido");
+
+            mensaje.textContent = texto;
+
+            mensaje.className =
+                "mensaje " + tipo;
+
+        }
+
+
         /*
         ============================================
-        CAMBIAR ENTRE LOGIN Y REGISTRO
+        CAMBIAR ENTRE PANELES
+        (login / registro / contraseña olvidada)
         ============================================
         */
 
+        function ocultarTodosLosPaneles() {
+
+            document.getElementById("loginPanel").style.display = "none";
+            document.getElementById("registroPanel").style.display = "none";
+            document.getElementById("olvidoPanel").style.display = "none";
+
+        }
+
         function mostrarRegistro() {
 
-            document.querySelector(".login-panel:not(#registroPanel)").style.display = "none";
+            ocultarTodosLosPaneles();
             document.getElementById("registroPanel").style.display = "block";
 
             mostrarMensaje("", "");
@@ -950,10 +1031,22 @@
 
         function mostrarLogin() {
 
-            document.getElementById("registroPanel").style.display = "none";
-            document.querySelector(".login-panel:not(#registroPanel)").style.display = "block";
+            ocultarTodosLosPaneles();
+            document.getElementById("loginPanel").style.display = "block";
 
             mostrarMensajeRegistro("", "");
+            mostrarMensajeOlvido("", "");
+
+        }
+
+        function mostrarOlvido(event) {
+
+            if (event) event.preventDefault();
+
+            ocultarTodosLosPaneles();
+            document.getElementById("olvidoPanel").style.display = "block";
+
+            mostrarMensaje("", "");
 
         }
 
@@ -1227,16 +1320,69 @@
         ============================================
         */
 
-        function olvidarPassword(event) {
+        document
+            .getElementById("olvidoForm")
+            .addEventListener("submit", async function(event) {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            alert(
-                "Para restablecer tu contraseña, contacta con soporte@productnova.com.\n\n" +
-                "Un administrador puede cambiarla con la función fn_cambiar_password."
-            );
 
-        }
+                const usuarioOEmail =
+                    document.getElementById("olvido_usuario").value.trim();
+
+                const boton =
+                    this.querySelector(".boton");
+
+
+                boton.disabled = true;
+                boton.textContent = "Enviando...";
+
+                mostrarMensajeOlvido("", "");
+
+
+                try {
+
+                    /*
+                    Llamamos a la Edge Function "enviar-recuperacion",
+                    nunca a la tabla directamente: es ella la que, con
+                    la service_role, genera el token y manda el correo
+                    con Resend. El navegador nunca ve el token.
+                    */
+
+                    const { error } =
+                        await _supabase.functions.invoke("enviar-recuperacion", {
+                            body: { usuario_o_email: usuarioOEmail }
+                        });
+
+                    if (error) {
+                        throw new Error(error.message || "No se pudo enviar el correo.");
+                    }
+
+                    /*
+                    La función responde igual exista o no la cuenta,
+                    para no revelar qué usuarios están registrados.
+                    */
+
+                    mostrarMensajeOlvido(
+                        "Si la cuenta existe, te hemos enviado un correo con el enlace para restablecer tu contraseña.",
+                        "exito"
+                    );
+
+                    boton.textContent = "Enviar enlace de recuperación";
+
+                } catch (error) {
+
+                    mostrarMensajeOlvido(
+                        error.message || "No se pudo enviar el correo. Inténtalo de nuevo.",
+                        "error"
+                    );
+
+                    boton.disabled = false;
+                    boton.textContent = "Enviar enlace de recuperación";
+
+                }
+
+            });
 
     </script>
 
