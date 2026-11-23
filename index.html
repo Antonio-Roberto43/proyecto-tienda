@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ProductNova | Electrodomésticos y Servicios</title>
+    <title data-i18n="index.title">ProductNova | Electrodomésticos y Servicios</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="idioma.js"></script>
+    <script src="accesibilidad.js"></script>
     <script src="conexion_db.js"></script>
 
 
@@ -734,6 +736,75 @@
 
 
         /* =========================
+           VÍDEO (YouTube)
+        ========================= */
+
+        .video-marco {
+            position: relative;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            aspect-ratio: 16 / 9;
+            background: var(--azul-oscuro);
+            border: 1px solid var(--borde);
+            border-radius: 18px;
+            box-shadow: var(--sombra);
+            overflow: hidden;
+        }
+
+        .video-marco iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .video-vacio {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+
+        .video-vacio svg {
+            width: 52px;
+            height: 52px;
+            stroke: #94a3b8;
+        }
+
+        .video-enlace {
+            max-width: 960px;
+            margin: 14px auto 0;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .video-enlace a {
+            color: var(--azul);
+            font-weight: 600;
+        }
+
+        .video-enlace a:hover,
+        .video-enlace a:focus-visible {
+            text-decoration: underline;
+        }
+
+        #video-seccion .titulo-seccion {
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        /* =========================
            FOOTER
         ========================= */
 
@@ -884,7 +955,7 @@
         <div id="logo">
 
             <a href="#">
-                <img src="logo.png" alt="Logo de la empresa">
+                <img src="logo.png" alt="Logo de la empresa" data-i18n-alt="nav.logoAlt">
             </a>
 
         </div>
@@ -892,9 +963,7 @@
 
         <div id="sobreNosotros">
 
-            <a href="sobrenosotros.html">
-                Sobre nosotros
-            </a>
+            <a href="sobrenosotros.html" data-i18n="nav.sobre">Sobre nosotros</a>
 
         </div>
 
@@ -903,17 +972,15 @@
 
         <div id="productos">
 
-            <a href="#">
-                Productos ▾
-            </a>
+            <a href="#" data-i18n="nav.productos">Productos ▾</a>
 
             <div class="desplegable">
 
-                <a href="#p1">Frigorífico No Frost</a>
-                <a href="#p2">Lavadora carga frontal</a>
-                <a href="#p3">Horno multifunción</a>
-                <a href="#p4">Microondas digital</a>
-                <a href="#p5">Lavavajillas integrable</a>
+                <a href="#p1" data-i18n-producto="Frigorífico No Frost">Frigorífico No Frost</a>
+                <a href="#p2" data-i18n-producto="Lavadora carga frontal">Lavadora carga frontal</a>
+                <a href="#p3" data-i18n-producto="Horno multifunción">Horno multifunción</a>
+                <a href="#p4" data-i18n-producto="Microondas digital">Microondas digital</a>
+                <a href="#p5" data-i18n-producto="Lavavajillas integrable">Lavavajillas integrable</a>
 
             </div>
 
@@ -924,17 +991,15 @@
 
         <div id="servicios">
 
-            <a href="#">
-                Servicios ▾
-            </a>
+            <a href="#" data-i18n="nav.servicios">Servicios ▾</a>
 
             <div class="desplegable">
 
-                <a href="#s1">Instalación a domicilio</a>
-                <a href="#s2">Reparación a domicilio</a>
-                <a href="#s3">Mantenimiento anual</a>
-                <a href="#s4">Garantía extendida</a>
-                <a href="#s5">Soporte técnico 24/7</a>
+                <a href="#s1" data-i18n-producto="Instalación a domicilio">Instalación a domicilio</a>
+                <a href="#s2" data-i18n-producto="Reparación a domicilio">Reparación a domicilio</a>
+                <a href="#s3" data-i18n-producto="Mantenimiento anual">Mantenimiento anual</a>
+                <a href="#s4" data-i18n-producto="Garantía extendida">Garantía extendida</a>
+                <a href="#s5" data-i18n-producto="Soporte técnico 24/7">Soporte técnico 24/7</a>
 
             </div>
 
@@ -945,7 +1010,7 @@
 
         <div id="carrito-container">
 
-            <button id="carrito-boton" title="Ver cesta">
+            <button id="carrito-boton" title="Ver cesta" data-i18n-title="cesta.ver">
 
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="9" cy="21" r="1"></circle>
@@ -959,22 +1024,18 @@
 
             <div id="carrito-panel">
 
-                <h4>Tu cesta</h4>
+                <h4 data-i18n="cesta.titulo">Tu cesta</h4>
 
                 <div id="carrito-lista"></div>
 
-                <div id="carrito-vacio">
-                    Tu cesta está vacía.
-                </div>
+                <div id="carrito-vacio" data-i18n="cesta.vacia">Tu cesta está vacía.</div>
 
                 <div id="carrito-total" style="display:none;">
-                    <span>Total</span>
+                    <span data-i18n="cesta.total">Total</span>
                     <span id="carrito-total-importe">0,00 €</span>
                 </div>
 
-                <button id="carrito-finalizar" disabled>
-                    Finalizar compra
-                </button>
+                <button id="carrito-finalizar" data-i18n="cesta.finalizar" disabled>Finalizar compra</button>
 
             </div>
 
@@ -985,9 +1046,7 @@
 
         <div id="login">
 
-            <a href="login.html" id="login-enlace">
-                Iniciar sesión
-            </a>
+            <a href="login.html" id="login-enlace" data-i18n="nav.login">Iniciar sesión</a>
 
         </div>
 
@@ -1000,20 +1059,11 @@
 
     <header class="hero">
 
-        <div class="hero-etiqueta">
-            En ProductNova encontrarás:
-        </div>
+        <div class="hero-etiqueta" data-i18n="index.heroTag">En ProductNova encontrarás:</div>
 
-        <h1>
-            Electrodomésticos para
-            <span>cada rincón de tu hogar.</span>
-        </h1>
+        <h1 data-i18n-html="index.heroH1">Electrodomésticos para <span>cada rincón de tu hogar.</span></h1>
 
-        <p>
-            Descubre nuestra selección de electrodomésticos y servicios
-            de instalación y mantenimiento, pensados para hacer tu día
-            a día más cómodo y eficiente.
-        </p>
+        <p data-i18n="index.heroP">Descubre nuestra selección de electrodomésticos y servicios de instalación y mantenimiento, pensados para hacer tu día a día más cómodo y eficiente.</p>
 
     </header>
 
@@ -1035,11 +1085,9 @@
 
                 <div>
 
-                    <h2>Productos</h2>
+                    <h2 data-i18n="index.secProd">Productos</h2>
 
-                    <p>
-                        Electrodomésticos de calidad para tu cocina y tu hogar.
-                    </p>
+                    <p data-i18n="index.secProdP">Electrodomésticos de calidad para tu cocina y tu hogar.</p>
 
                 </div>
 
@@ -1049,7 +1097,7 @@
             <div class="productos-container">
 
 
-                <div class="card" id="p1">
+                <div class="card" id="p1" data-nombre="Frigorífico No Frost">
 
                     <div class="card-imagen">
 
@@ -1062,25 +1110,21 @@
 
                     </div>
 
-                    <h3>Frigorífico No Frost</h3>
+                    <h3 data-i18n-producto="Frigorífico No Frost">Frigorífico No Frost</h3>
 
-                    <p>
+                    <p data-i18n-desc="p1">
                         Combi de dos puertas con tecnología No Frost
                         y distribución interior ajustable.
                     </p>
 
-                    <div class="precio">
-                        499,99 € <small>/ unidad</small>
-                    </div>
+                    <div class="precio" data-precio="499.99" data-unidad="unidad">499,99 € <small>/ unidad</small></div>
 
-                    <button>
-                        Comprar
-                    </button>
+                    <button data-i18n="index.comprar">Comprar</button>
 
                 </div>
 
 
-                <div class="card" id="p2">
+                <div class="card" id="p2" data-nombre="Lavadora carga frontal">
 
                     <div class="card-imagen">
 
@@ -1093,25 +1137,21 @@
 
                     </div>
 
-                    <h3>Lavadora carga frontal</h3>
+                    <h3 data-i18n-producto="Lavadora carga frontal">Lavadora carga frontal</h3>
 
-                    <p>
+                    <p data-i18n-desc="p2">
                         8 kg de capacidad, motor inverter silencioso
                         y programas rápidos de lavado.
                     </p>
 
-                    <div class="precio">
-                        349,99 € <small>/ unidad</small>
-                    </div>
+                    <div class="precio" data-precio="349.99" data-unidad="unidad">349,99 € <small>/ unidad</small></div>
 
-                    <button>
-                        Comprar
-                    </button>
+                    <button data-i18n="index.comprar">Comprar</button>
 
                 </div>
 
 
-                <div class="card" id="p3">
+                <div class="card" id="p3" data-nombre="Horno multifunción">
 
                     <div class="card-imagen">
 
@@ -1123,25 +1163,21 @@
 
                     </div>
 
-                    <h3>Horno multifunción</h3>
+                    <h3 data-i18n-producto="Horno multifunción">Horno multifunción</h3>
 
-                    <p>
+                    <p data-i18n-desc="p3">
                         Horno empotrable con 9 funciones de cocción,
                         limpieza pirolítica y control digital.
                     </p>
 
-                    <div class="precio">
-                        299,99 € <small>/ unidad</small>
-                    </div>
+                    <div class="precio" data-precio="299.99" data-unidad="unidad">299,99 € <small>/ unidad</small></div>
 
-                    <button>
-                        Comprar
-                    </button>
+                    <button data-i18n="index.comprar">Comprar</button>
 
                 </div>
 
 
-                <div class="card" id="p4">
+                <div class="card" id="p4" data-nombre="Microondas digital">
 
                     <div class="card-imagen">
 
@@ -1154,25 +1190,21 @@
 
                     </div>
 
-                    <h3>Microondas digital</h3>
+                    <h3 data-i18n-producto="Microondas digital">Microondas digital</h3>
 
-                    <p>
+                    <p data-i18n-desc="p4">
                         20 litros de capacidad, grill integrado
                         y panel de control digital.
                     </p>
 
-                    <div class="precio">
-                        99,99 € <small>/ unidad</small>
-                    </div>
+                    <div class="precio" data-precio="99.99" data-unidad="unidad">99,99 € <small>/ unidad</small></div>
 
-                    <button>
-                        Comprar
-                    </button>
+                    <button data-i18n="index.comprar">Comprar</button>
 
                 </div>
 
 
-                <div class="card" id="p5">
+                <div class="card" id="p5" data-nombre="Lavavajillas integrable">
 
                     <div class="card-imagen">
 
@@ -1186,20 +1218,16 @@
 
                     </div>
 
-                    <h3>Lavavajillas integrable</h3>
+                    <h3 data-i18n-producto="Lavavajillas integrable">Lavavajillas integrable</h3>
 
-                    <p>
+                    <p data-i18n-desc="p5">
                         12 servicios, 6 programas de lavado
                         y bajo consumo de agua y energía.
                     </p>
 
-                    <div class="precio">
-                        379,99 € <small>/ unidad</small>
-                    </div>
+                    <div class="precio" data-precio="379.99" data-unidad="unidad">379,99 € <small>/ unidad</small></div>
 
-                    <button>
-                        Comprar
-                    </button>
+                    <button data-i18n="index.comprar">Comprar</button>
 
                 </div>
 
@@ -1220,11 +1248,9 @@
 
                 <div>
 
-                    <h2>Servicios</h2>
+                    <h2 data-i18n="index.secServ">Servicios</h2>
 
-                    <p>
-                        Instalación, reparación y mantenimiento de tus electrodomésticos.
-                    </p>
+                    <p data-i18n="index.secServP">Instalación, reparación y mantenimiento de tus electrodomésticos.</p>
 
                 </div>
 
@@ -1234,7 +1260,7 @@
             <div class="servicios-container">
 
 
-                <div class="card" id="s1">
+                <div class="card" id="s1" data-nombre="Instalación a domicilio">
 
                     <div class="card-imagen">
 
@@ -1244,25 +1270,21 @@
 
                     </div>
 
-                    <h3>Instalación a domicilio</h3>
+                    <h3 data-i18n-producto="Instalación a domicilio">Instalación a domicilio</h3>
 
-                    <p>
+                    <p data-i18n-desc="s1">
                         Instalamos y conectamos tu electrodoméstico
                         nuevo el mismo día de la entrega.
                     </p>
 
-                    <div class="precio">
-                        29,99 € <small>/ servicio</small>
-                    </div>
+                    <div class="precio" data-precio="29.99" data-unidad="servicio">29,99 € <small>/ servicio</small></div>
 
-                    <button>
-                        Contratar
-                    </button>
+                    <button data-i18n="index.contratar">Contratar</button>
 
                 </div>
 
 
-                <div class="card" id="s2">
+                <div class="card" id="s2" data-nombre="Reparación a domicilio">
 
                     <div class="card-imagen">
 
@@ -1273,25 +1295,21 @@
 
                     </div>
 
-                    <h3>Reparación a domicilio</h3>
+                    <h3 data-i18n-producto="Reparación a domicilio">Reparación a domicilio</h3>
 
-                    <p>
+                    <p data-i18n-desc="s2">
                         Diagnóstico y reparación de averías por técnicos
                         cualificados, con piezas originales.
                     </p>
 
-                    <div class="precio">
-                        39,99 € <small>/ visita</small>
-                    </div>
+                    <div class="precio" data-precio="39.99" data-unidad="visita">39,99 € <small>/ visita</small></div>
 
-                    <button>
-                        Contratar
-                    </button>
+                    <button data-i18n="index.contratar">Contratar</button>
 
                 </div>
 
 
-                <div class="card" id="s3">
+                <div class="card" id="s3" data-nombre="Mantenimiento anual">
 
                     <div class="card-imagen">
 
@@ -1305,25 +1323,21 @@
 
                     </div>
 
-                    <h3>Mantenimiento anual</h3>
+                    <h3 data-i18n-producto="Mantenimiento anual">Mantenimiento anual</h3>
 
-                    <p>
+                    <p data-i18n-desc="s3">
                         Revisión periódica de tus electrodomésticos
                         para alargar su vida útil y su rendimiento.
                     </p>
 
-                    <div class="precio">
-                        19,99 € <small>/ mes</small>
-                    </div>
+                    <div class="precio" data-precio="19.99" data-unidad="mes">19,99 € <small>/ mes</small></div>
 
-                    <button>
-                        Contratar
-                    </button>
+                    <button data-i18n="index.contratar">Contratar</button>
 
                 </div>
 
 
-                <div class="card" id="s4">
+                <div class="card" id="s4" data-nombre="Garantía extendida">
 
                     <div class="card-imagen">
 
@@ -1334,25 +1348,21 @@
 
                     </div>
 
-                    <h3>Garantía extendida</h3>
+                    <h3 data-i18n-producto="Garantía extendida">Garantía extendida</h3>
 
-                    <p>
+                    <p data-i18n-desc="s4">
                         Amplía la garantía de fábrica hasta 5 años
                         con cobertura total de piezas y mano de obra.
                     </p>
 
-                    <div class="precio">
-                        49,99 € <small>/ año</small>
-                    </div>
+                    <div class="precio" data-precio="49.99" data-unidad="año">49,99 € <small>/ año</small></div>
 
-                    <button>
-                        Contratar
-                    </button>
+                    <button data-i18n="index.contratar">Contratar</button>
 
                 </div>
 
 
-                <div class="card" id="s5">
+                <div class="card" id="s5" data-nombre="Soporte técnico 24/7">
 
                     <div class="card-imagen">
 
@@ -1365,24 +1375,43 @@
 
                     </div>
 
-                    <h3>Soporte técnico 24/7</h3>
+                    <h3 data-i18n-producto="Soporte técnico 24/7">Soporte técnico 24/7</h3>
 
-                    <p>
+                    <p data-i18n-desc="s5">
                         Atención telefónica y por chat para resolver
                         dudas o incidencias a cualquier hora.
                     </p>
 
-                    <div class="precio">
-                        9,99 € <small>/ mes</small>
-                    </div>
+                    <div class="precio" data-precio="9.99" data-unidad="mes">9,99 € <small>/ mes</small></div>
 
-                    <button>
-                        Contratar
-                    </button>
+                    <button data-i18n="index.contratar">Contratar</button>
 
                 </div>
 
 
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             VÍDEO (abajo del todo, antes del pie de página)
+             El vídeo se elige en la constante VIDEO_YOUTUBE del script.
+        ========================= -->
+
+        <section class="seccion" id="video-seccion" aria-labelledby="video-titulo" style="margin-bottom: 0;">
+
+            <div class="titulo-seccion">
+                <div>
+                    <h2 id="video-titulo" data-i18n="index.videoTitulo">Nueva Kelvinator</h2>
+                    <p data-i18n="index.videoP">Descubre nuestro nuevo producto.</p>
+                </div>
+            </div>
+
+            <div class="video-marco" id="video-marco"></div>
+
+            <div class="video-enlace" id="video-enlace" hidden>
+                <a id="video-enlace-a" href="#" target="_blank" rel="noopener noreferrer" data-i18n="index.videoEnlace">Ver en YouTube ↗</a>
             </div>
 
         </section>
@@ -1399,13 +1428,9 @@
 
         <h3>ProductNova</h3>
 
-        <p>
-            Electrodomésticos y servicio técnico para tu hogar.
-        </p>
+        <p data-i18n="index.footerP">Electrodomésticos y servicio técnico para tu hogar.</p>
 
-        <div class="footer-copy">
-            © 2026 ProductNova. Todos los derechos reservados.
-        </div>
+        <div class="footer-copy" data-i18n="index.copy">© 2026 ProductNova. Todos los derechos reservados.</div>
 
     </footer>
 
@@ -1467,7 +1492,8 @@
 
                 // Si hay sesión, cambiamos el enlace de login
                 // para que sirva como acceso a la cuenta.
-                loginEnlace.textContent = "Mi cuenta";
+                loginEnlace.setAttribute("data-i18n", "nav.miCuenta");
+                loginEnlace.textContent = I18N.t("nav.miCuenta");
                 loginEnlace.href = "cuenta.html";
 
             } else {
@@ -1475,7 +1501,8 @@
                 carritoContainer.style.display = "none";
                 carritoPanel.classList.remove("abierto");
 
-                loginEnlace.textContent = "Iniciar sesión";
+                loginEnlace.setAttribute("data-i18n", "nav.login");
+                loginEnlace.textContent = I18N.t("nav.login");
                 loginEnlace.href = "login.html";
 
             }
@@ -1603,16 +1630,16 @@
 
                 fila.innerHTML =
                     '<div>' +
-                        '<div class="carrito-item-nombre">' + item.nombre + '</div>' +
-                        '<div class="carrito-item-cantidad">' + item.cantidad + ' x ' + item.precio.toFixed(2).replace(".", ",") + ' €</div>' +
+                        '<div class="carrito-item-nombre">' + I18N.esc(I18N.producto(item.nombre)) + '</div>' +
+                        '<div class="carrito-item-cantidad">' + item.cantidad + ' x ' + I18N.euros(item.precio) + '</div>' +
                     '</div>' +
-                    '<button class="carrito-item-quitar" data-nombre="' + item.nombre + '">Quitar</button>';
+                    '<button class="carrito-item-quitar" data-nombre="' + I18N.esc(item.nombre) + '">' + I18N.t("cesta.quitar") + '</button>';
 
                 carritoLista.appendChild(fila);
 
             });
 
-            carritoTotalImporte.textContent = total.toFixed(2).replace(".", ",") + " €";
+            carritoTotalImporte.textContent = I18N.euros(total);
 
             // Botones de "Quitar"
 
@@ -1701,7 +1728,7 @@
 
                     if (!haySesionIniciada()) {
 
-                        alert("Debes iniciar sesión para añadir productos a la cesta.");
+                        alert(I18N.t("index.alertaLogin"));
 
                         window.location.href = "login.html";
 
@@ -1711,14 +1738,11 @@
 
                     const card = boton.closest(".card");
 
-                    const nombre = card.querySelector("h3").textContent.trim();
+                    /* El nombre canónico (en español) y el precio numérico viven en
+                       atributos de la tarjeta: el texto visible cambia con el idioma. */
+                    const nombre = card.dataset.nombre;
 
-                    const precioTexto = card.querySelector(".precio").textContent
-                        .replace("€", "")
-                        .replace(",", ".")
-                        .trim();
-
-                    const precio = parseFloat(precioTexto);
+                    const precio = parseFloat(card.querySelector(".precio").dataset.precio);
 
                     anadirAlCarrito(nombre, precio);
 
@@ -1726,11 +1750,11 @@
 
                     const textoOriginal = boton.textContent;
 
-                    boton.textContent = "Añadido ✓";
+                    boton.textContent = I18N.t("index.anadido");
                     boton.classList.add("anadido");
 
                     setTimeout(function() {
-                        boton.textContent = textoOriginal;
+                        boton.textContent = I18N.t(boton.dataset.i18n);
                         boton.classList.remove("anadido");
                     }, 1200);
 
@@ -1758,12 +1782,9 @@
 
                     const card = boton.closest(".card");
 
-                    const nombre = card.querySelector("h3").textContent.trim();
+                    const nombre = card.dataset.nombre;
 
-                    const precioLimpio = card.querySelector(".precio").textContent
-                        .replace("€", "")
-                        .replace(",", ".")
-                        .trim();
+                    const precioLimpio = card.querySelector(".precio").dataset.precio;
 
                     window.location.href =
                         "pagos.html?producto=" +
@@ -1826,12 +1847,15 @@
             tarjeta.className = "card";
             tarjeta.id = item.codigo;
 
+            /* nombre canónico (español) = clave que entiende la base de datos */
+            tarjeta.dataset.nombre = item.nombre;
+
             tarjeta.innerHTML =
                 '<div class="card-imagen">' + iconoPara(item.codigo, item.tipo) + '</div>' +
-                '<h3>' + item.nombre + '</h3>' +
-                '<p>' + (item.descripcion || "") + '</p>' +
-                '<div class="precio">' + DB.euros(item.precio) + ' <small>/ ' + item.unidad + '</small></div>' +
-                '<button>' + (item.tipo === "servicio" ? "Contratar" : "Comprar") + '</button>';
+                '<h3 data-i18n-producto="' + I18N.esc(item.nombre) + '">' + I18N.esc(item.nombre) + '</h3>' +
+                '<p data-i18n-desc="' + I18N.esc(item.codigo) + '">' + I18N.esc(item.descripcion || "") + '</p>' +
+                '<div class="precio" data-precio="' + Number(item.precio) + '" data-unidad="' + I18N.esc(item.unidad) + '"></div>' +
+                '<button data-i18n="' + (item.tipo === "servicio" ? "index.contratar" : "index.comprar") + '"></button>';
 
             return tarjeta;
 
@@ -1862,7 +1886,7 @@
 
                         menuProductos.insertAdjacentHTML(
                             "beforeend",
-                            '<a href="#' + p.codigo + '">' + p.nombre + '</a>'
+                            '<a href="#' + p.codigo + '" data-i18n-producto="' + I18N.esc(p.nombre) + '">' + I18N.esc(p.nombre) + '</a>'
                         );
 
                     });
@@ -1880,7 +1904,7 @@
 
                         menuServicios.insertAdjacentHTML(
                             "beforeend",
-                            '<a href="#' + s.codigo + '">' + s.nombre + '</a>'
+                            '<a href="#' + s.codigo + '" data-i18n-producto="' + I18N.esc(s.nombre) + '">' + I18N.esc(s.nombre) + '</a>'
                         );
 
                     });
@@ -1898,6 +1922,7 @@
                 // Tanto si las tarjetas son las nuevas (de la BD)
                 // como si son las de reserva, hay que enganchar
                 // los botones de "Comprar" / "Contratar".
+                I18N.aplicar(document);
                 activarBotonesComprar();
                 activarBotonesServicios();
 
@@ -1959,12 +1984,110 @@
          * =========================
          */
 
+        document.addEventListener("idiomaCambiado", function() {
+            renderizarCarrito();
+        });
+
         actualizarVisibilidadCarrito();
         renderizarCarrito();
         cargarCatalogo();
         sincronizarCarritoDesdeServidor();
 
-    </script>
+    
+
+        /*
+         * =========================
+         * VÍDEO DE YOUTUBE
+         * =========================
+         *
+         * Pon aquí el vídeo: vale el enlace completo (watch?v=..., youtu.be/...,
+         * /shorts/..., /embed/...) o solo el ID de 11 caracteres.
+         * Mientras esté vacío se muestra un marcador y no se carga nada de YouTube.
+         *
+         * const VIDEO_YOUTUBE = "https://www.youtube.com/watch?v=6TJfVhAolx4";
+         *
+         * Se usa youtube-nocookie.com (no instala cookies hasta que se pulsa play),
+         * el reproductor sale en el idioma de la web y carga en diferido.
+         * Nota: YouTube no está disponible en la China continental; el enlace
+         * "Ver en YouTube" queda como alternativa.
+         */
+
+        const VIDEO_YOUTUBE = "https://www.youtube.com/watch?v=QfX0-BWhMKQ";
+
+        function idDeYoutube(texto) {
+
+            const t = String(texto || "").trim();
+
+            if (/^[\w-]{11}$/.test(t)) return t;
+
+            const m = t.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{11})/);
+
+            return m ? m[1] : null;
+
+        }
+
+        function pintarVideo() {
+
+            const marco = document.getElementById("video-marco");
+            const enlace = document.getElementById("video-enlace");
+            const id = idDeYoutube(VIDEO_YOUTUBE);
+
+            if (!marco) return;
+
+            if (!id) {
+
+                marco.innerHTML =
+                    '<div class="video-vacio">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                            '<rect x="2" y="5" width="20" height="14" rx="3"></rect><polygon points="10 9 16 12 10 15 10 9"></polygon>' +
+                        '</svg>' +
+                        '<span>' + I18N.esc(I18N.t("index.videoVacio")) + '</span>' +
+                    '</div>';
+
+                enlace.hidden = true;
+                return;
+
+            }
+
+            const idiomaYT = { es: "es", en: "en", zh: "zh-CN" }[I18N.idioma] || "en";
+
+            // Con los subtítulos de accesibilidad activados, el vídeo muestra además sus propios subtítulos
+            const subs = !!(window.Accesibilidad && Accesibilidad.subtitulos);
+
+            const src = "https://www.youtube-nocookie.com/embed/" + id +
+                "?rel=0&modestbranding=1&playsinline=1&hl=" + idiomaYT + "&cc_lang_pref=" + idiomaYT +
+                (subs ? "&cc_load_policy=1" : "");
+
+            let iframe = marco.querySelector("iframe");
+
+            if (!iframe) {
+                marco.innerHTML = "";
+                iframe = document.createElement("iframe");
+                iframe.loading = "lazy";
+                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+                iframe.referrerPolicy = "strict-origin-when-cross-origin";
+                iframe.allowFullscreen = true;
+                marco.appendChild(iframe);
+            }
+
+            // solo se recarga el reproductor si cambia el idioma (no al refrescar precios)
+            if (iframe.dataset.src !== src) {
+                iframe.dataset.src = src;
+                iframe.src = src;
+            }
+
+            iframe.title = I18N.t("index.videoIframe");
+
+            document.getElementById("video-enlace-a").href = "https://www.youtube.com/watch?v=" + id;
+            enlace.hidden = false;
+
+        }
+
+        document.addEventListener("idiomaCambiado", pintarVideo);
+        document.addEventListener("subtitulosCambiados", pintarVideo);
+        pintarVideo();
+
+</script>
 
 </body>
 

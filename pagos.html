@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>ProductNova | Checkout Seguro</title>
-
-    <!-- Supabase -->
+    <title data-i18n="pagos.title">ProductNova | Checkout Seguro</title>
+    
+    <!-- Librería de Supabase y tu archivo de conexión -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Tu conexión a Supabase -->
+    <script src="idioma.js"></script>
+    <script src="accesibilidad.js"></script>
     <script src="conexion_db.js"></script>
 
     <style>
@@ -29,13 +28,12 @@
             --fondo-body: #f1f5f9;
             --blanco: #ffffff;
             --borde: #e2e8f0;
-
-            --stripe: #635bff;
-
+            --paypal: #00457C;
+            --bizum: #000000;
+            --bizum-verde: #00d2a0;
             --exito-bg: #f0fdf4;
             --exito-border: #bbf7d0;
             --exito-texto: #16a34a;
-
             --error-bg: #fef2f2;
             --error-border: #fecaca;
             --error-texto: #dc2626;
@@ -45,11 +43,9 @@
             background-color: var(--fondo-body);
             color: var(--texto-principal);
             min-height: 100vh;
-
             display: flex;
             flex-direction: column;
             align-items: center;
-
             padding: 40px 20px;
         }
 
@@ -69,42 +65,34 @@
             color: var(--texto-secundario);
             font-size: 14px;
             margin-top: 5px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             gap: 6px;
         }
 
+        /* Contenedor Grid Principal */
         .checkout-container {
             width: 100%;
             max-width: 950px;
-
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
-
             gap: 30px;
             align-items: start;
         }
 
+        /* Paneles Generales */
         .panel {
             background: var(--blanco);
             border-radius: 16px;
-
-            box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.05),
-                0 2px 4px -1px rgba(0, 0, 0, 0.03);
-
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             overflow: hidden;
             border: 1px solid var(--borde);
         }
 
         .panel-header {
             padding: 20px 25px;
-
             border-bottom: 1px solid var(--borde);
-
             background-color: #f8fafc;
         }
 
@@ -117,171 +105,182 @@
             padding: 25px;
         }
 
+        /* Formulario Envío */
         .form-group {
             margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-
             font-size: 13px;
             font-weight: 600;
-
             margin-bottom: 8px;
-
             color: var(--texto-principal);
         }
 
         .form-control {
             width: 100%;
-
             padding: 14px;
-
             border: 1px solid var(--borde);
             border-radius: 10px;
-
             font-size: 14px;
-
             transition: all 0.3s ease;
-
             background-color: #f8fafc;
         }
 
         .form-control:focus {
             outline: none;
-
             border-color: var(--azul-brand);
-
             background-color: var(--blanco);
-
-            box-shadow:
-                0 0 0 4px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
-        /*
-         * TARJETA STRIPE
-         */
+        /* Selector de Pagos estilo "Cards" */
+        .metodos-pago {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
 
-        .stripe-card {
+        .metodo-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            padding: 18px 20px;
-
-            border: 2px solid var(--stripe);
+            padding: 16px 20px;
+            border: 2px solid var(--borde);
             border-radius: 12px;
-
-            background-color: #f7f5ff;
-
-            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: var(--blanco);
         }
 
-        .stripe-info {
+        .metodo-card:hover {
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
+        }
+
+        /* Radio oculto solo a la vista: con display:none el teclado y los
+           lectores de pantalla no podían llegar a él */
+        .metodo-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .metodo-card { position: relative; }
+
+        /* Método no disponible en el idioma activo (Bizum solo en español, Alipay solo en inglés) */
+        .metodo-card[hidden] { display: none !important; }
+
+        /* ".form-group label" (display:block) pisaba el flex de las tarjetas y la
+           flecha caía debajo del logo */
+        .form-group label.metodo-card {
+            display: flex;
+            margin-bottom: 0;
+            font-size: inherit;
+        }
+
+        .metodo-card:has(input[type="radio"]:focus-visible) {
+            outline: 3px solid var(--azul-brand);
+            outline-offset: 2px;
+        }
+
+        /* Estilo cuando está seleccionado */
+        .metodo-card input[type="radio"]:checked + .metodo-info {
+            opacity: 1;
+        }
+
+        .metodo-card:has(input[type="radio"]:checked) {
+            border-color: var(--azul-brand);
+            background-color: #eff6ff;
+        }
+
+        .metodo-info {
             display: flex;
             align-items: center;
-            gap: 14px;
-
-            font-weight: 700;
+            gap: 12px;
+            font-weight: 600;
             font-size: 15px;
         }
 
-        .stripe-logo {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: -1px;
-
-            color: var(--stripe);
+        /* Logos de los métodos */
+        .logo-pago {
+            height: 24px;
+            object-fit: contain;
         }
 
-        .stripe-badge {
-            font-size: 11px;
+        .paypal-text { color: var(--paypal); font-style: italic; font-weight: 800; font-size: 18px; letter-spacing: -0.5px;}
+        .bizum-text { color: var(--bizum); font-weight: 800; font-size: 18px; letter-spacing: -0.5px;}
+        .bizum-text span { color: var(--bizum-verde); }
+        .alipay-text { color: #1677ff; font-weight: 800; font-size: 18px; letter-spacing: -0.3px; }
+        .alipay-text small { color: var(--texto-secundario); font-weight: 600; font-size: 14px; margin-left: 4px; }
+        .applepay-text { color: #000; font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
+        .stripe-text { color: #635bff; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+        .stripe-text small { color: var(--texto-secundario); font-weight: 600; font-size: 13px; letter-spacing: 0; margin-left: 6px; }
 
-            padding: 5px 8px;
-
-            border-radius: 999px;
-
-            background: #ebe9ff;
-            color: #5148d8;
-
-            font-weight: 700;
-        }
-
+        /* Campos Dinámicos de Pago */
         .detalle-pago {
             background-color: #f8fafc;
-
             border: 1px dashed var(--borde);
-
             padding: 20px;
-
             border-radius: 10px;
-
             margin-bottom: 25px;
-
             font-size: 14px;
-
             color: var(--texto-secundario);
-
             text-align: center;
-
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        .detalle-pago strong {
-            color: var(--texto-principal);
-        }
-
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
+        .bizum-instrucciones .bizum-ayuda-num { font-size: 12px; margin-top: 8px; color: var(--texto-secundario); }
+
+        .nota-moneda {
+            display: none;
+            margin-top: 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--texto-secundario);
+        }
+
+        .bizum-instrucciones strong {
+            display: block;
+            font-size: 24px;
+            color: var(--texto-principal);
+            margin: 10px 0;
+            letter-spacing: 1px;
+        }
+
+        /* Botón Submit */
         .btn-pagar {
             width: 100%;
-
             padding: 16px;
-
-            background-color: var(--stripe);
-
+            background-color: var(--azul-brand);
             color: white;
-
             border: none;
-
             border-radius: 12px;
-
             font-size: 16px;
-
             font-weight: bold;
-
             cursor: pointer;
-
             transition: all 0.3s ease;
-
-            box-shadow:
-                0 4px 12px rgba(99, 91, 255, 0.25);
-
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
             display: flex;
-
             justify-content: center;
             align-items: center;
-
             gap: 10px;
         }
 
         .btn-pagar:hover {
-            background-color: #5148d8;
-
+            background-color: var(--azul-hover);
             transform: translateY(-2px);
-
-            box-shadow:
-                0 6px 16px rgba(99, 91, 255, 0.35);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
         }
 
         .btn-pagar:active {
@@ -290,1228 +289,624 @@
 
         .btn-pagar:disabled {
             background-color: #94a3b8;
-
             cursor: not-allowed;
-
             transform: none;
-
             box-shadow: none;
         }
 
-        /*
-         * RESUMEN
-         */
-
+        /* Panel Resumen (Sidebar) */
         .resumen-list {
             margin-bottom: 20px;
         }
 
         .resumen-item {
             display: flex;
-
             justify-content: space-between;
-
-            gap: 15px;
-
             margin-bottom: 15px;
-
             font-size: 14px;
-
             color: var(--texto-secundario);
-        }
-
-        .resumen-item span:last-child {
-            white-space: nowrap;
-
-            color: var(--texto-principal);
-
-            font-weight: 600;
         }
 
         .resumen-total {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             padding-top: 20px;
-
             border-top: 2px dashed var(--borde);
-
             font-size: 18px;
-
             font-weight: 800;
-
             color: var(--azul-oscuro);
         }
 
+        /* Mensajes de Alerta */
         .alerta {
             display: none;
-
             padding: 15px;
-
             border-radius: 10px;
-
             margin-bottom: 25px;
-
             font-size: 14px;
-
             font-weight: 600;
-
             text-align: center;
         }
 
         .alerta.exito {
             display: block;
-
             background-color: var(--exito-bg);
-
             border: 1px solid var(--exito-border);
-
             color: var(--exito-texto);
         }
 
         .alerta.error {
             display: block;
-
             background-color: var(--error-bg);
-
             border: 1px solid var(--error-border);
-
             color: var(--error-texto);
         }
 
         .volver {
             display: inline-block;
-
             margin-top: 25px;
-
             color: var(--texto-secundario);
-
             text-decoration: none;
-
             font-size: 14px;
-
             font-weight: 600;
-
             transition: color 0.2s;
         }
 
-        .volver:hover {
-            color: var(--azul-brand);
-        }
+        .volver:hover { color: var(--azul-brand); }
 
-        /*
-         * SPINNER
-         */
-
+        /* Spinner de carga */
         .spinner {
             display: none;
-
             width: 20px;
             height: 20px;
-
             border: 3px solid rgba(255,255,255,0.3);
-
             border-radius: 50%;
-
             border-top-color: #fff;
-
             animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .seguridad {
-            margin-top: 15px;
-
-            text-align: center;
-
-            font-size: 12px;
-
-            color: var(--texto-secundario);
-        }
-
+        /* Responsive */
         @media (max-width: 850px) {
-
             .checkout-container {
                 grid-template-columns: 1fr;
             }
-
             .order-summary {
-                order: -1;
+                order: -1; /* Pone el resumen arriba en móviles */
             }
         }
     </style>
 </head>
-
 <body>
 
-    <!-- =========================================
-         CABECERA
-         ========================================= -->
-
     <div class="header-checkout">
-
         <h1>ProductNova</h1>
-
         <p>
-
-            <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-
-                <rect
-                    x="3"
-                    y="11"
-                    width="18"
-                    height="11"
-                    rx="2"
-                    ry="2">
-                </rect>
-
-                <path
-                    d="M7 11V7a5 5 0 0 1 10 0v4">
-                </path>
-
-            </svg>
-
-            Pago seguro mediante Stripe
+            <!-- Icono candado simple SVG -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span data-i18n="pagos.seguro">Pago 100% Seguro y Encriptado</span>
         </p>
-
     </div>
 
-
-    <!-- =========================================
-         CONTENEDOR PRINCIPAL
-         ========================================= -->
-
     <div class="checkout-container">
-
-
-        <!-- =====================================
-             FORMULARIO
-             ===================================== -->
-
+        
+        <!-- COLUMNA IZQUIERDA: Formulario -->
         <main class="checkout-form">
-
             <div class="panel">
-
                 <div class="panel-header">
-
-                    <h2>
-                        Datos de Envío y Pago
-                    </h2>
-
+                    <h2 data-i18n="pagos.detalles">Detalles de Envío y Pago</h2>
                 </div>
-
-
+                
                 <div class="panel-body">
-
-                    <div
-                        id="alerta-mensaje"
-                        class="alerta">
-                    </div>
-
+                    <div id="alerta-mensaje" class="alerta" role="alert" aria-live="assertive"></div>
 
                     <form id="form-checkout">
-
-
-                        <!-- =========================
-                             DATOS PERSONALES
-                             ========================= -->
-
+                        <!-- DATOS PERSONALES -->
                         <div class="form-group">
-
-                            <label for="nombre_completo">
-                                Nombre Completo
-                            </label>
-
-                            <input
-                                type="text"
-                                id="nombre_completo"
-                                class="form-control"
-                                required
-                                autocomplete="name"
-                                placeholder="Ej: Juan Pérez García">
-
+                            <label for="nombre_completo" data-i18n="pagos.nombre">Nombre Completo</label>
+                            <input type="text" id="nombre_completo" class="form-control" required placeholder="Ej: Juan Pérez García" data-i18n-placeholder="login.phNombre">
                         </div>
 
-
                         <div class="form-group">
-
-                            <label for="direccion">
-                                Dirección de Entrega
-                            </label>
-
-                            <input
-                                type="text"
-                                id="direccion"
-                                class="form-control"
-                                required
-                                autocomplete="street-address"
-                                placeholder="Calle, Número, Piso, Ciudad, Código Postal">
-
+                            <label for="direccion" data-i18n="pagos.direccion">Dirección de Entrega</label>
+                            <input type="text" id="direccion" class="form-control" required placeholder="Calle, Número, Piso, Ciudad, Código Postal" data-i18n-placeholder="pagos.phDireccion">
                         </div>
 
-
-                        <!-- =========================
-                             STRIPE
-                             ========================= -->
-
+                        <br>
+                        
+                        <!-- MÉTODOS DE PAGO -->
                         <div class="form-group">
-
-                            <label>
-                                Método de pago
-                            </label>
-
-
-                            <div class="stripe-card">
-
-                                <div class="stripe-info">
-
-                                    <div class="stripe-logo">
-                                        stripe
+                            <label id="etiqueta-metodos" data-i18n="pagos.metodo">Selecciona tu método de pago</label>
+                            
+                            <div class="metodos-pago" role="radiogroup" aria-labelledby="etiqueta-metodos">
+                                <!-- PayPal -->
+                                <label class="metodo-card" data-metodo="paypal">
+                                    <div class="metodo-info">
+                                        <input type="radio" name="metodo_pago" value="paypal" aria-label="PayPal" checked>
+                                        <div class="paypal-text" aria-hidden="true">Pay<span>Pal</span></div>
                                     </div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                </label>
 
-                                    <span>
-                                        Pago seguro
-                                    </span>
+                                <!-- Stripe (tarjeta) -->
+                                <label class="metodo-card" data-metodo="stripe">
+                                    <div class="metodo-info">
+                                        <input type="radio" name="metodo_pago" value="stripe" aria-label="Stripe">
+                                        <div class="stripe-text" aria-hidden="true">stripe<small data-i18n="pagos.tarjeta">Tarjeta</small></div>
+                                    </div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                </label>
 
-                                </div>
+                                <!-- Bizum -->
+                                <label class="metodo-card" data-metodo="bizum">
+                                    <div class="metodo-info">
+                                        <input type="radio" name="metodo_pago" value="bizum" aria-label="Bizum">
+                                        <div class="bizum-text" aria-hidden="true">bizum<span>.</span></div>
+                                    </div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                </label>
 
+                                <!-- Apple Pay (método para clientes de habla inglesa) -->
+                                <label class="metodo-card" data-metodo="applepay">
+                                    <div class="metodo-info">
+                                        <input type="radio" name="metodo_pago" value="applepay" aria-label="Apple Pay">
+                                        <div class="applepay-text" aria-hidden="true">Apple Pay</div>
+                                    </div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                </label>
 
-                                <div class="stripe-badge">
-                                    CHECKOUT
-                                </div>
-
+                                <!-- Alipay (método para clientes chinos) -->
+                                <label class="metodo-card" data-metodo="alipay">
+                                    <div class="metodo-info">
+                                        <input type="radio" name="metodo_pago" value="alipay" aria-label="Alipay 支付宝">
+                                        <div class="alipay-text" aria-hidden="true">Alipay<small lang="zh-CN">支付宝</small></div>
+                                    </div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                </label>
                             </div>
-
                         </div>
 
-
-                        <div class="detalle-pago">
-
-                            <svg
-                                style="margin-bottom:10px"
-                                width="32"
-                                height="32"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="#635bff"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-
-                                <rect
-                                    x="3"
-                                    y="11"
-                                    width="18"
-                                    height="11"
-                                    rx="2"
-                                    ry="2">
-                                </rect>
-
-                                <path
-                                    d="M7 11V7a5 5 0 0 1 10 0v4">
-                                </path>
-
-                            </svg>
-
-                            <p>
-                                Serás redirigido a
-                                <strong>Stripe Checkout</strong>
-                                para completar el pago de forma segura.
-                            </p>
-
-                            <br>
-
-                            <p>
-                                Stripe mostrará los métodos de pago
-                                disponibles para tu compra.
-                            </p>
-
+                        <!-- EXPLICACIONES DINÁMICAS -->
+                        <div id="detalle-paypal" class="detalle-pago">
+                            <svg style="margin-bottom:10px" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <p data-i18n="pagos.infoPaypal">Serás redirigido a la plataforma segura de PayPal para autorizar tu compra. No almacenamos tus datos financieros.</p>
                         </div>
 
+                        <div id="detalle-stripe" class="detalle-pago" style="display: none;">
+                            <svg style="margin-bottom:10px" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#635bff" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                            <p data-i18n="pagos.infoStripe">Serás redirigido a la página segura de Stripe para introducir los datos de tu tarjeta y pagar. Nosotros no vemos ni almacenamos los datos de tu tarjeta.</p>
+                        </div>
 
-                        <!-- =========================
-                             BOTÓN
-                             ========================= -->
+                        <div id="detalle-applepay" class="detalle-pago" style="display: none;">
+                            <svg style="margin-bottom:10px" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            <p data-i18n="pagos.infoApplePay">Confirma el pago con Face ID, Touch ID o el código de tu dispositivo. Apple Pay no comparte con el comercio el número real de tu tarjeta.</p>
+                        </div>
 
-                        <button
-                            type="submit"
-                            id="btn-submit"
-                            class="btn-pagar">
+                        <div id="detalle-alipay" class="detalle-pago" style="display: none;">
+                            <svg style="margin-bottom:10px" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <p data-i18n="pagos.infoAlipay">Serás redirigido a Alipay (支付宝) para autorizar el pago. Puedes pagar con tu saldo o con una tarjeta vinculada.</p>
+                        </div>
 
-                            <span id="btn-text">
-                                Pagar con Stripe
-                            </span>
-
-                            <div
-                                id="btn-spinner"
-                                class="spinner">
+                        <div id="detalle-bizum" class="detalle-pago" style="display: none;">
+                            <div class="bizum-instrucciones">
+                                <p data-i18n="pagos.bz1">1. Entra en la app de tu banco.</p>
+                                <p data-i18n="pagos.bz2">2. Envía el total mediante Bizum al siguiente número:</p>
+                                <strong dir="ltr" translate="no">+34 600 000 000</strong>
+                                <p data-i18n="pagos.bz3">3. Indica tu nombre en el concepto.</p>
+                                <br>
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="telefono_bizum" data-i18n="pagos.bzConfirma">Confirma tu teléfono para validar el pago:</label>
+                                    <input type="tel" id="telefono_bizum" class="form-control" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="Ej: 612 345 678" data-i18n-placeholder="pagos.phTel" aria-describedby="alerta-mensaje">
+                                </div>
                             </div>
+                        </div>
 
+                        <button type="submit" id="btn-submit" class="btn-pagar">
+                            <span id="btn-text" data-i18n="pagos.btnPaypal">Pagar con PayPal</span>
+                            <div id="btn-spinner" class="spinner"></div>
                         </button>
-
-
-                        <div class="seguridad">
-
-                            🔒 Tus datos de pago son procesados
-                            directamente por Stripe.
-
-                        </div>
-
                     </form>
-
                 </div>
-
             </div>
-
-
-            <div style="text-align:center;">
-
-                <a
-                    href="index.html"
-                    class="volver">
-
-                    ← Volver a la tienda
-
-                </a>
-
+            
+            <div style="text-align: center;">
+                <a href="index.html" class="volver" data-i18n="pagos.volver">← Volver a la tienda</a>
             </div>
-
         </main>
 
-
-        <!-- =====================================
-             RESUMEN DEL PEDIDO
-             ===================================== -->
-
+        <!-- COLUMNA DERECHA: Resumen -->
         <aside class="order-summary">
-
             <div class="panel">
-
                 <div class="panel-header">
-
-                    <h2>
-                        Resumen del Pedido
-                    </h2>
-
+                    <h2 data-i18n="pagos.resumen">Resumen del Pedido</h2>
                 </div>
-
-
                 <div class="panel-body">
-
-                    <div
-                        class="resumen-list"
-                        id="lista-articulos">
-
+                    
+                    <div class="resumen-list" id="lista-articulos">
+                        <!-- Esto se llena dinámicamente con JS, pongo uno de ejemplo por si no hay carrito -->
                         <div class="resumen-item">
-
-                            <span>
-                                Artículos de tu cesta
-                            </span>
-
-                            <span>
-                                Calculando...
-                            </span>
-
+                            <span data-i18n="pagos.articulos">Artículos de tu cesta</span>
+                            <span data-i18n="pagos.calculando">Calculando...</span>
                         </div>
-
                     </div>
-
 
                     <div class="resumen-item">
-
-                        <span>
-                            Gastos de envío
-                        </span>
-
-                        <span
-                            style="
-                                color:var(--exito-texto);
-                                font-weight:bold;
-                            ">
-
-                            Gratis
-
-                        </span>
-
+                        <span data-i18n="pagos.envio">Gastos de envío</span>
+                        <span style="color: var(--exito-texto); font-weight: bold;" data-i18n="pagos.gratis">Gratis</span>
                     </div>
-
 
                     <div class="resumen-total">
-
-                        <span>
-                            Total a pagar
-                        </span>
-
-                        <span id="total-pagar">
-                            0.00 €
-                        </span>
-
+                        <span data-i18n="pagos.totalPagar">Total a pagar</span>
+                        <span id="total-pagar">0.00 €</span>
                     </div>
-
+                    <p id="nota-moneda" class="nota-moneda"></p>
+                    
                 </div>
-
             </div>
-
         </aside>
 
     </div>
 
-
-    <!-- =========================================
-         JAVASCRIPT
-         ========================================= -->
-
     <script>
-
-        /*
-         * =========================================
-         * VARIABLES
-         * =========================================
-         */
-
+        /* ============================================
+           LÓGICA DE INTERFAZ Y PRECIOS
+           ============================================ */
         let totalPedido = 0;
+        let articulosPedido = [];   // [{nombre, precio, cantidad}] -> se envía a la BD
 
-        let articulosPedido = [];
+        /* Pinta el resumen del pedido. Se vuelve a llamar al cambiar de idioma:
+           los nombres se guardan siempre en español (los entiende la base de
+           datos) y aquí solo se traducen para mostrarlos. */
 
+        function pintarResumen() {
 
-        /*
-         * =========================================
-         * ALERTAS
-         * =========================================
-         */
+            const listaArticulos = document.getElementById("lista-articulos");
 
-        function mostrarAlerta(texto, tipo) {
+            if (articulosPedido.length === 0) {
 
-            const alerta =
-                document.getElementById("alerta-mensaje");
+                listaArticulos.innerHTML =
+                    '<div class="resumen-item">' +
+                        '<span>' + I18N.t("cesta.vacia") + '</span>' +
+                        '<span>' + I18N.euros(0) + '</span>' +
+                    '</div>';
 
-            alerta.textContent = texto;
+            } else {
 
-            alerta.className =
-                "alerta " + tipo;
+                listaArticulos.innerHTML = articulosPedido.map(function(item) {
+                    return '<div class="resumen-item">' +
+                        '<span>' + item.cantidad + 'x ' + I18N.esc(I18N.producto(item.nombre)) + '</span>' +
+                        '<span>' + I18N.euros(item.precio * item.cantidad) + '</span>' +
+                    '</div>';
+                }).join("");
 
-            alerta.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
+            }
+
+            document.getElementById("total-pagar").textContent = I18N.euros(totalPedido);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const parametros = new URLSearchParams(window.location.search);
+
+            if (parametros.has("carrito")) {
+
+                articulosPedido = JSON.parse(decodeURIComponent(parametros.get("carrito")));
+
+            } else if (parametros.has("producto")) {
+
+                /* Compra directa de un servicio desde index.html:
+                   pagos.html?producto=Nombre&precio=29.99 */
+
+                const nombre = parametros.get("producto");
+                const precio = parseFloat(parametros.get("precio")) || 0;
+
+                articulosPedido = [{ nombre: nombre, precio: precio, cantidad: 1 }];
+
+            } else {
+
+                /* Último recurso: leer la cesta de localStorage */
+
+                articulosPedido = JSON.parse(localStorage.getItem("carrito") || "[]");
+
+            }
+
+            totalPedido = articulosPedido.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
+
+            if (articulosPedido.length === 0) {
+                document.getElementById("btn-submit").disabled = true;
+            }
+
+            pintarResumen();
+        });
+
+        document.addEventListener("idiomaCambiado", pintarResumen);
+
+        /* ============================================
+           STRIPE (pago con tarjeta · Stripe Checkout)
+
+           1) Al pagar con Stripe se llama a la función de servidor
+              "crear-checkout-stripe", que crea la sesión de pago y
+              devuelve su URL.
+           2) Se redirige al cliente a la página segura de Stripe, donde
+              introduce los datos de la tarjeta (nunca pasan por aquí).
+           3) Cuando Stripe confirma el cobro, la función "stripe-webhook"
+              crea el pedido en la base de datos. Por eso en este caso
+              NO se llama a DB.crearPedido desde el navegador.
+           4) Stripe devuelve al cliente a cuenta.html (pago hecho) o a
+              pagos.html?pago=cancelado (si vuelve atrás).
+           ============================================ */
+        const STRIPE_FUNCION_URL    = "https://zadvjnjujkmfytscjobd.supabase.co/functions/v1/crear-checkout-stripe";
+        const STRIPE_FUNCION_APIKEY = "sb_publishable_48Du1jwTvTOzuFrUrJ9uBA_qDKu3VVG";   // clave "anon" de Supabase (la función exige JWT por defecto)
+
+        async function crearCheckoutStripe(usuario, nombre, direccion) {
+
+            if (STRIPE_FUNCION_URL.indexOf("TU-PROYECTO") >= 0) {
+                throw new Error(I18N.t("pagos.errStripeConfig"));
+            }
+
+            const cabeceras = { "Content-Type": "application/json" };
+            if (STRIPE_FUNCION_APIKEY) {
+                cabeceras["apikey"] = STRIPE_FUNCION_APIKEY;
+                cabeceras["Authorization"] = "Bearer " + STRIPE_FUNCION_APIKEY;
+            }
+
+            let resp, datos;
+            try {
+                resp = await fetch(STRIPE_FUNCION_URL, {
+                    method: "POST",
+                    headers: cabeceras,
+                    body: JSON.stringify({
+                        usuario: usuario,
+                        nombre: nombre,
+                        direccion: direccion,
+                        idioma: I18N.idioma,
+                        items: articulosPedido
+                    })
+                });
+                datos = await resp.json();
+            } catch (e) {
+                throw new Error(I18N.t("pagos.errStripe"));
+            }
+
+            if (!resp.ok || !datos || !datos.url) {
+                throw new Error(I18N.t("pagos.errStripe"));
+            }
+            return datos.url;
+        }
+
+        /* ============================================
+           MÉTODOS DE PAGO
+           Para añadir uno nuevo: un <label class="metodo-card"> con su
+           radio, un <div id="detalle-XXX"> y una entrada aquí.
+           ============================================ */
+        /* "idiomas": en qué idiomas de la web está disponible el método.
+           Sin esa clave, está disponible en todos. */
+        const METODOS = {
+            paypal:   { panel: "detalle-paypal",   boton: "pagos.btnPaypal" },
+            stripe:   { panel: "detalle-stripe",   boton: "pagos.btnStripe" },
+            bizum:    { panel: "detalle-bizum",    boton: "pagos.btnBizum",    idiomas: ["es"] },
+            applepay: { panel: "detalle-applepay", boton: "pagos.btnApplePay" },
+            alipay:   { panel: "detalle-alipay",   boton: "pagos.btnAlipay",   idiomas: ["en"] }
+        };
+
+        function metodoDisponible(m) {
+            const cfg = METODOS[m];
+            return !!cfg && (!cfg.idiomas || cfg.idiomas.indexOf(I18N.idioma) >= 0);
+        }
+
+        /* Oculta (y desactiva) los métodos que no existen en el idioma activo.
+           Si el marcado deja de estar disponible, se vuelve a PayPal. */
+        function aplicarDisponibilidad() {
+            Object.keys(METODOS).forEach(function (m) {
+                const radio = document.querySelector('input[name="metodo_pago"][value="' + m + '"]');
+                if (!radio) return;
+                const ok = metodoDisponible(m);
+                const tarjeta = radio.closest(".metodo-card");
+                if (tarjeta) tarjeta.hidden = !ok;
+                radio.disabled = !ok;
+                if (!ok && radio.checked) {
+                    radio.checked = false;
+                    document.querySelector('input[name="metodo_pago"][value="paypal"]').checked = true;
+                }
             });
         }
 
-
-        /*
-         * =========================================
-         * FORMATEAR EUROS
-         * =========================================
-         */
-
-        function euros(valor) {
-
-            return Number(valor).toLocaleString(
-                "es-ES",
-                {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }
-            ) + " €";
-
+        function metodoActual() {
+            const marcado = document.querySelector('input[name="metodo_pago"]:checked');
+            return marcado ? marcado.value : "paypal";
         }
 
+        /* Enseña el panel del método marcado y ajusta el botón y el teléfono.
+           Se llama al cambiar de método Y al cargar la página: el navegador
+           restaura el radio marcado al recargar o volver atrás, pero no lanza
+           "change", y antes quedaba marcado Bizum con el panel de PayPal. */
+        function sincronizarMetodo(anunciar) {
 
-        /*
-         * =========================================
-         * ESCAPAR HTML
-         *
-         * Evita insertar directamente nombres
-         * provenientes de URL/localStorage.
-         * =========================================
-         */
+            aplicarDisponibilidad();
 
-        function escaparHTML(valor) {
+            const metodo = metodoActual();
 
-            return String(valor)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            Object.keys(METODOS).forEach(function (m) {
+                document.getElementById(METODOS[m].panel).style.display = (m === metodo) ? "block" : "none";
+            });
 
-        }
+            const btnTexto = document.getElementById("btn-text");
+            btnTexto.setAttribute("data-i18n", METODOS[metodo].boton);
+            btnTexto.textContent = I18N.t(METODOS[metodo].boton);
 
+            // El teléfono solo es obligatorio con Bizum
+            document.getElementById("telefono_bizum").required = (metodo === "bizum");
 
-        /*
-         * =========================================
-         * CARGAR CARRITO
-         * =========================================
-         */
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            () => {
-
-                const parametros =
-                    new URLSearchParams(
-                        window.location.search
-                    );
-
-                const listaArticulos =
-                    document.getElementById(
-                        "lista-articulos"
-                    );
-
-
-                /*
-                 * -------------------------------
-                 * CASO 1:
-                 * carrito en URL
-                 * -------------------------------
-                 */
-
-                if (parametros.has("carrito")) {
-
-                    try {
-
-                        const carrito =
-                            JSON.parse(
-                                decodeURIComponent(
-                                    parametros.get("carrito")
-                                )
-                            );
-
-
-                        if (
-                            !Array.isArray(carrito) ||
-                            carrito.length === 0
-                        ) {
-                            throw new Error(
-                                "Carrito vacío"
-                            );
-                        }
-
-
-                        articulosPedido = carrito;
-
-                        listaArticulos.innerHTML = "";
-
-
-                        carrito.forEach(item => {
-
-                            const precio =
-                                Number(item.precio) || 0;
-
-                            const cantidad =
-                                Number(item.cantidad) || 0;
-
-                            const subtotal =
-                                precio * cantidad;
-
-                            totalPedido += subtotal;
-
-
-                            listaArticulos.innerHTML += `
-
-                                <div class="resumen-item">
-
-                                    <span>
-                                        ${cantidad}x
-                                        ${escaparHTML(item.nombre)}
-                                    </span>
-
-                                    <span>
-                                        ${euros(subtotal)}
-                                    </span>
-
-                                </div>
-
-                            `;
-
-                        });
-
-                    } catch (error) {
-
-                        mostrarAlerta(
-                            "No se pudo leer el carrito.",
-                            "error"
-                        );
-
-                        desactivarPago();
-
-                    }
-
-                }
-
-
-                /*
-                 * -------------------------------
-                 * CASO 2:
-                 * compra directa
-                 *
-                 * pagos.html?
-                 * producto=...
-                 * precio=...
-                 * -------------------------------
-                 */
-
-                else if (
-                    parametros.has("producto")
-                ) {
-
-                    const nombre =
-                        parametros.get("producto");
-
-                    const precio =
-                        parseFloat(
-                            parametros.get("precio")
-                        ) || 0;
-
-
-                    if (!nombre || precio <= 0) {
-
-                        mostrarAlerta(
-                            "Los datos del producto no son válidos.",
-                            "error"
-                        );
-
-                        desactivarPago();
-
-                        return;
-                    }
-
-
-                    articulosPedido = [
-                        {
-                            nombre: nombre,
-                            precio: precio,
-                            cantidad: 1
-                        }
-                    ];
-
-
-                    totalPedido = precio;
-
-
-                    listaArticulos.innerHTML = `
-
-                        <div class="resumen-item">
-
-                            <span>
-                                1x
-                                ${escaparHTML(nombre)}
-                            </span>
-
-                            <span>
-                                ${euros(precio)}
-                            </span>
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                /*
-                 * -------------------------------
-                 * CASO 3:
-                 * localStorage
-                 * -------------------------------
-                 */
-
-                else {
-
-                    try {
-
-                        const guardado =
-                            JSON.parse(
-                                localStorage.getItem(
-                                    "carrito"
-                                ) || "[]"
-                            );
-
-
-                        if (
-                            Array.isArray(guardado) &&
-                            guardado.length > 0
-                        ) {
-
-                            articulosPedido =
-                                guardado;
-
-                            listaArticulos.innerHTML =
-                                "";
-
-
-                            guardado.forEach(item => {
-
-                                const precio =
-                                    Number(item.precio) || 0;
-
-                                const cantidad =
-                                    Number(item.cantidad) || 0;
-
-                                const subtotal =
-                                    precio * cantidad;
-
-                                totalPedido += subtotal;
-
-
-                                listaArticulos.innerHTML += `
-
-                                    <div class="resumen-item">
-
-                                        <span>
-                                            ${cantidad}x
-                                            ${escaparHTML(item.nombre)}
-                                        </span>
-
-                                        <span>
-                                            ${euros(subtotal)}
-                                        </span>
-
-                                    </div>
-
-                                `;
-
-                            });
-
-                        } else {
-
-                            mostrarCarritoVacio();
-
-                        }
-
-                    } catch (error) {
-
-                        mostrarCarritoVacio();
-
-                    }
-
-                }
-
-
-                /*
-                 * Mostrar total
-                 */
-
-                document.getElementById(
-                    "total-pagar"
-                ).textContent =
-                    euros(totalPedido);
-
-
-                /*
-                 * Si no hay productos
-                 */
-
-                if (
-                    !articulosPedido ||
-                    articulosPedido.length === 0 ||
-                    totalPedido <= 0
-                ) {
-
-                    desactivarPago();
-
-                }
-
+            if (anunciar && window.Accesibilidad) {
+                const panel = document.getElementById(METODOS[metodo].panel);
+                Accesibilidad.decir(panel.innerText.replace(/\s+/g, " ").trim());
             }
-        );
-
-
-        /*
-         * =========================================
-         * CARRITO VACÍO
-         * =========================================
-         */
-
-        function mostrarCarritoVacio() {
-
-            const lista =
-                document.getElementById(
-                    "lista-articulos"
-                );
-
-            lista.innerHTML = `
-
-                <div class="resumen-item">
-
-                    <span>
-                        Tu cesta está vacía
-                    </span>
-
-                    <span>
-                        0.00 €
-                    </span>
-
-                </div>
-
-            `;
-
         }
 
-
-        /*
-         * =========================================
-         * DESACTIVAR PAGO
-         * =========================================
-         */
-
-        function desactivarPago() {
-
-            document.getElementById(
-                "btn-submit"
-            ).disabled = true;
-
-        }
-
-
-        /*
-         * =========================================
-         * ENVIAR A STRIPE
-         * =========================================
-         */
-
-        document
-            .getElementById("form-checkout")
-            .addEventListener(
-                "submit",
-                async function(event) {
-
-                    event.preventDefault();
-
-
-                    /*
-                     * ---------------------------------
-                     * VALIDACIÓN BÁSICA
-                     * ---------------------------------
-                     */
-
-                    if (
-                        !articulosPedido ||
-                        articulosPedido.length === 0
-                    ) {
-
-                        mostrarAlerta(
-                            "Tu cesta está vacía.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    const nombreEnvio =
-                        document
-                            .getElementById(
-                                "nombre_completo"
-                            )
-                            .value
-                            .trim();
-
-
-                    const direccionEnvio =
-                        document
-                            .getElementById(
-                                "direccion"
-                            )
-                            .value
-                            .trim();
-
-
-                    if (!nombreEnvio) {
-
-                        mostrarAlerta(
-                            "Introduce tu nombre completo.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    if (!direccionEnvio) {
-
-                        mostrarAlerta(
-                            "Introduce tu dirección de entrega.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    /*
-                     * ---------------------------------
-                     * BOTÓN EN CARGA
-                     * ---------------------------------
-                     */
-
-                    const btnSubmit =
-                        document.getElementById(
-                            "btn-submit"
-                        );
-
-                    const btnText =
-                        document.getElementById(
-                            "btn-text"
-                        );
-
-                    const spinner =
-                        document.getElementById(
-                            "btn-spinner"
-                        );
-
-
-                    btnSubmit.disabled = true;
-
-                    btnText.style.display = "none";
-
-                    spinner.style.display = "block";
-
-
-                    try {
-
-                        /*
-                         * ---------------------------------
-                         * USUARIO ACTUAL
-                         * ---------------------------------
-                         */
-
-                        const usuarioActual =
-
-                            sessionStorage.getItem(
-                                "usuarioLogueado"
-                            )
-
-                            ||
-
-                            localStorage.getItem(
-                                "usuarioRecordado"
-                            )
-
-                            ||
-
-                            "";
-
-
-                        /*
-                         * ---------------------------------
-                         * COMPROBAR SUPABASE
-                         * ---------------------------------
-                         */
-
-                        if (
-                            typeof supabase ===
-                            "undefined"
-                        ) {
-
-                            throw new Error(
-                                "No se ha podido inicializar Supabase."
-                            );
-
-                        }
-
-
-                        /*
-                         * ---------------------------------
-                         * IMPORTANTE
-                         *
-                         * El navegador NO debe crear
-                         * directamente el pago.
-                         *
-                         * Llamamos a la Edge Function.
-                         * ---------------------------------
-                         */
-
-                        const { data, error } =
-                            await _supabase.functions.invoke(
-                                "crear-checkout-stripe",
-                                {
-                                    body: {
-                                        usuario: usuarioActual,
-                                        nombre: nombreEnvio,
-                                        direccion: direccionEnvio,
-                                        items: articulosPedido
-                                    }
-                                }
-                            );
-
-                        console.log("RESPUESTA STRIPE:", data);
-                        console.log("ERROR STRIPE:", error);
-
-                        if (error) {
-                            console.error("Error completo:", error);
-
-                            let detalle = error.message || "Error desconocido";
-
-                            try {
-                                if (error.context) {
-                                    const cuerpo = await error.context.json();
-                                    console.error("Respuesta de la Edge Function:", cuerpo);
-
-                                    if (cuerpo?.error) {
-                                        detalle = cuerpo.error;
-                                    }
-                                }
-                            } catch (e) {
-                                console.error("No se pudo leer la respuesta:", e);
-                            }
-
-                            mostrarAlerta(
-                                "Error al iniciar el pago: " + detalle,
-                                "error"
-                            );
-
-                            return;
-                        }
-
-                        if (!data?.url) {
-                            console.error("La función no devolvió una URL:", data);
-
-                            mostrarAlerta(
-                                "Stripe no devolvió una URL de pago.",
-                                "error"
-                            );
-
-                            return;
-                        }
-
-                        window.location.href = data.url;
-
-
-                        /*
-                         * ---------------------------------
-                         * COMPROBAR URL STRIPE
-                         * ---------------------------------
-                         */
-
-                        if (
-                            !data ||
-                            !data.url
-                        ) {
-
-                            console.error(
-                                "Respuesta Stripe:",
-                                data
-                            );
-
-                            throw new Error(
-                                "Stripe no devolvió la URL de pago."
-                            );
-
-                        }
-
-
-                        /*
-                         * ---------------------------------
-                         * LIMPIAR ALERTAS
-                         * ---------------------------------
-                         */
-
-                        const alerta =
-                            document.getElementById(
-                                "alerta-mensaje"
-                            );
-
-                        alerta.style.display =
-                            "none";
-
-
-                        /*
-                         * ---------------------------------
-                         * REDIRECCIÓN
-                         *
-                         * El usuario abandona tu web
-                         * y entra en Stripe Checkout.
-                         * ---------------------------------
-                         */
-
-                        window.location.href =
-                            data.url;
-
-
-                    } catch (error) {
-
-                        console.error(
-                            "Error iniciando Stripe:",
-                            error
-                        );
-
-
-                        mostrarAlerta(
-                            error.message ||
-                            "No se pudo iniciar el pago.",
-                            "error"
-                        );
-
-
-                        /*
-                         * Restaurar botón
-                         */
-
-                        btnSubmit.disabled =
-                            false;
-
-                        btnText.style.display =
-                            "block";
-
-                        spinner.style.display =
-                            "none";
-
-                    }
-
-                }
-            );
-
-
-        /*
-         * =========================================
-         * DETECTAR CANCELACIÓN DE STRIPE
-         * =========================================
-         */
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            () => {
-
-                const parametros =
-                    new URLSearchParams(
-                        window.location.search
-                    );
-
-
-                if (
-                    parametros.get("cancelado")
-                    === "1"
-                ) {
-
-                    mostrarAlerta(
-                        "El pago fue cancelado. No se ha realizado ningún cargo.",
-                        "error"
-                    );
-
-                }
-
+        document.querySelectorAll('input[name="metodo_pago"]').forEach(function (radio) {
+            radio.addEventListener("change", function () { sincronizarMetodo(true); });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () { sincronizarMetodo(false); });
+        document.addEventListener("idiomaCambiado", function () { sincronizarMetodo(false); });
+        window.addEventListener("pageshow", function (e) {
+            if (!e.persisted) return;
+            // Al volver atrás desde Stripe el botón podía quedar bloqueado
+            document.getElementById("btn-submit").disabled = (articulosPedido.length === 0);
+            document.getElementById("btn-text").style.display = "block";
+            document.getElementById("btn-spinner").style.display = "none";
+            sincronizarMetodo(false);
+        });
+
+        // Stripe nos devuelve aquí si el cliente cancela el pago
+        document.addEventListener("DOMContentLoaded", function () {
+            if (new URLSearchParams(window.location.search).get("pago") === "cancelado") {
+                mostrarAlerta(I18N.t("pagos.pagoCancelado"), "error");
             }
-        );
+        });
 
+        /* ============================================
+           NOTA DE MONEDA
+           Los importes se muestran en la moneda del idioma, pero el
+           servidor cobra en euros: se avisa con claridad. */
+        function pintarNotaMoneda() {
+            const nota = document.getElementById("nota-moneda");
+            if (I18N.moneda === "EUR") { nota.style.display = "none"; return; }
+            nota.textContent = I18N.t("pagos.notaMoneda", { eur: I18N.eurosReales(totalPedido) });
+            nota.style.display = "block";
+        }
+        document.addEventListener("idiomaCambiado", pintarNotaMoneda);
+        document.addEventListener("DOMContentLoaded", pintarNotaMoneda);
+
+        /* ============================================
+           TELÉFONO BIZUM
+           Móvil español: 9 dígitos que empiezan por 6 o 7, con o sin +34 / 0034.
+           Devuelve los 9 dígitos o null si no es válido. */
+        function normalizarMovilEs(texto) {
+            let d = String(texto || "").replace(/[\s().-]/g, "");
+            d = d.replace(/^(\+34|0034)/, "");
+            return /^[67]\d{8}$/.test(d) ? d : null;
+        }
+
+        /* ============================================
+           MENSAJES EN PANTALLA
+           ============================================ */
+        function mostrarAlerta(texto, tipo) {
+            const alerta = document.getElementById("alerta-mensaje");
+            alerta.textContent = texto;
+            alerta.className = "alerta " + tipo;
+            alerta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function simularEspera(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        /* ============================================
+           PROCESAR PAGO Y GUARDAR EN SUPABASE
+           ============================================ */
+        document.getElementById("form-checkout").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            // Estado de carga del botón
+            const btnSubmit = document.getElementById("btn-submit");
+            const btnText = document.getElementById("btn-text");
+            const spinner = document.getElementById("btn-spinner");
+            
+            btnSubmit.disabled = true;
+            btnText.style.display = "none";
+            spinner.style.display = "block";
+            
+            // Recoger datos
+            const usuarioActual = sessionStorage.getItem("usuarioLogueado") || localStorage.getItem("usuarioRecordado") || "Invitado";
+            const nombreEnvio = document.getElementById("nombre_completo").value;
+            const direccionEnvio = document.getElementById("direccion").value;
+            const metodoPago = document.querySelector('input[name="metodo_pago"]:checked').value;
+            
+            try {
+                // 1. Validaciones y "pasarela" simulada
+                if (!metodoDisponible(metodoPago)) {
+                    throw new Error(I18N.t("pagos.errMetodo"));
+                }
+
+                let telefonoBizum = null;
+
+                if (metodoPago === "bizum") {
+                    const telefonoEscrito = document.getElementById("telefono_bizum").value.trim();
+                    if (!telefonoEscrito) {
+                        throw new Error(I18N.t("pagos.errTelefono"));
+                    }
+                    telefonoBizum = normalizarMovilEs(telefonoEscrito);
+                    if (!telefonoBizum) {
+                        document.getElementById("telefono_bizum").focus();
+                        throw new Error(I18N.t("pagos.errTelefonoFormato"));
+                    }
+                }
+
+                if (!articulosPedido || articulosPedido.length === 0) {
+                    throw new Error(I18N.t("cesta.vacia"));
+                }
+
+                if (metodoPago === "stripe") {
+                    // Stripe Checkout: el pedido lo crea el webhook cuando Stripe confirma el cobro
+                    const urlStripe = await crearCheckoutStripe(usuarioActual, nombreEnvio, direccionEnvio);
+                    mostrarAlerta(I18N.t("pagos.stripeRedir"), "exito");
+                    window.location.href = urlStripe;
+                    return;   // el botón sigue en "cargando" mientras se cambia de página
+                }
+
+                await simularEspera(1500);
+
+
+                /* 2. Guardar en PostgreSQL.
+
+                   DB.crearPedido llama a fn_crear_pedido, que en
+                   UNA sola transacción:
+                     - inserta la cabecera en "pedidos"
+                     - inserta una fila por artículo en "pedido_lineas"
+                     - registra el cobro en "pagos"
+                     - descuenta stock y vacía el carrito
+
+                   El total se recalcula en el servidor con los
+                   precios reales de la tabla "productos", así que
+                   no se puede falsear el importe desde el navegador. */
+
+                const pedido = await DB.crearPedido({
+                    usuario:   usuarioActual,
+                    nombre:    nombreEnvio,
+                    direccion: direccionEnvio,
+                    metodo:    metodoPago,
+                    items:     articulosPedido,
+                    telefono:  telefonoBizum
+                });
+
+
+                // 3. Éxito y redirección
+
+                const mensajeEstado = pedido.estado === "Pendiente_Verificación"
+                    ? I18N.t("pagos.okBizum", { id: pedido.id })
+                    : I18N.t("pagos.okCompra", { id: pedido.id, total: I18N.euros(pedido.total) });
+
+                mostrarAlerta(mensajeEstado + " " + I18N.t("pagos.redirigiendo"), "exito");
+
+                // Vaciamos la cesta local (la clave real es "carrito")
+                localStorage.removeItem("carrito");
+                localStorage.removeItem("cestaProductNova");
+
+                setTimeout(() => {
+                    window.location.href = "cuenta.html";
+                }, 2500);
+
+            } catch (err) {
+                mostrarAlerta(err.message, "error");
+                
+                // Restaurar botón
+                btnSubmit.disabled = false;
+                btnText.style.display = "block";
+                spinner.style.display = "none";
+            }
+        });
     </script>
-
 </body>
 </html>

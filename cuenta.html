@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ProductNova | Mi cuenta</title>
+    <title data-i18n="cuenta.title">ProductNova | Mi cuenta</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="idioma.js"></script>
+    <script src="accesibilidad.js"></script>
     <script src="conexion_db.js"></script>
 
     <style>
@@ -817,7 +819,7 @@
         <div id="logo">
 
             <a href="index.html">
-                <img src="logo.png" alt="Logo de la empresa">
+                <img src="logo.png" alt="Logo de la empresa" data-i18n-alt="nav.logoAlt">
             </a>
 
         </div>
@@ -825,26 +827,22 @@
 
         <div id="sobreNosotros">
 
-            <a href="sobrenosotros.html">
-                Sobre nosotros
-            </a>
+            <a href="sobrenosotros.html" data-i18n="nav.sobre">Sobre nosotros</a>
 
         </div>
 
 
         <div id="productos">
 
-            <a href="index.html#productos-seccion">
-                Productos ▾
-            </a>
+            <a href="index.html#productos-seccion" data-i18n="nav.productos">Productos ▾</a>
 
             <div class="desplegable">
 
-                <a href="index.html#p1">Producto P1</a>
-                <a href="index.html#p2">Producto P2</a>
-                <a href="index.html#p3">Producto P3</a>
-                <a href="index.html#p4">Producto P4</a>
-                <a href="index.html#p5">Producto P5</a>
+                <a href="index.html#p1" data-i18n="gen.p1">Producto P1</a>
+                <a href="index.html#p2" data-i18n="gen.p2">Producto P2</a>
+                <a href="index.html#p3" data-i18n="gen.p3">Producto P3</a>
+                <a href="index.html#p4" data-i18n="gen.p4">Producto P4</a>
+                <a href="index.html#p5" data-i18n="gen.p5">Producto P5</a>
 
             </div>
 
@@ -853,17 +851,15 @@
 
         <div id="servicios">
 
-            <a href="index.html#servicios-seccion">
-                Servicios ▾
-            </a>
+            <a href="index.html#servicios-seccion" data-i18n="nav.servicios">Servicios ▾</a>
 
             <div class="desplegable">
 
-                <a href="index.html#s1">Servicio S1</a>
-                <a href="index.html#s2">Servicio S2</a>
-                <a href="index.html#s3">Servicio S3</a>
-                <a href="index.html#s4">Servicio S4</a>
-                <a href="index.html#s5">Servicio S5</a>
+                <a href="index.html#s1" data-i18n="gen.s1">Servicio S1</a>
+                <a href="index.html#s2" data-i18n="gen.s2">Servicio S2</a>
+                <a href="index.html#s3" data-i18n="gen.s3">Servicio S3</a>
+                <a href="index.html#s4" data-i18n="gen.s4">Servicio S4</a>
+                <a href="index.html#s5" data-i18n="gen.s5">Servicio S5</a>
 
             </div>
 
@@ -874,7 +870,7 @@
 
         <div id="carrito-container">
 
-            <button id="carrito-boton" title="Ver cesta">
+            <button id="carrito-boton" title="Ver cesta" data-i18n-title="cesta.ver">
 
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="9" cy="21" r="1"></circle>
@@ -888,22 +884,18 @@
 
             <div id="carrito-panel">
 
-                <h4>Tu cesta</h4>
+                <h4 data-i18n="cesta.titulo">Tu cesta</h4>
 
                 <div id="carrito-lista"></div>
 
-                <div id="carrito-vacio">
-                    Tu cesta está vacía.
-                </div>
+                <div id="carrito-vacio" data-i18n="cesta.vacia">Tu cesta está vacía.</div>
 
                 <div id="carrito-total" style="display:none;">
-                    <span>Total</span>
+                    <span data-i18n="cesta.total">Total</span>
                     <span id="carrito-total-importe">0,00 €</span>
                 </div>
 
-                <button id="carrito-finalizar" disabled>
-                    Finalizar compra
-                </button>
+                <button id="carrito-finalizar" data-i18n="cesta.finalizar" disabled>Finalizar compra</button>
 
             </div>
 
@@ -914,9 +906,7 @@
 
         <div id="login">
 
-            <a href="login.html" id="login-enlace">
-                Iniciar sesión
-            </a>
+            <a href="login.html" id="login-enlace" data-i18n="nav.login">Iniciar sesión</a>
 
         </div>
 
@@ -929,12 +919,16 @@
 
     <div class="cabecera-cuenta">
 
-        <h1>Mi cuenta</h1>
+        <h1 data-i18n="nav.miCuenta">Mi cuenta</h1>
 
-        <p>
-            Consulta tus datos y gestiona tu sesión.
-        </p>
+        <p data-i18n="cuenta.sub">Consulta tus datos y gestiona tu sesión.</p>
 
+    </div>
+
+    <!-- Aviso al volver de pagar con Stripe (cuenta.html?pago=exitoso) -->
+    <div id="aviso-pago" role="status" aria-live="polite" data-i18n="cuenta.pagoOk" hidden
+         style="max-width:900px;margin:18px auto 0;padding:14px 18px;border:2px solid #16a34a;border-radius:10px;background:#f0fdf4;color:#166534;font-weight:600">
+        ¡Pago recibido! Tu pedido aparecerá en la lista en unos instantes.
     </div>
 
 
@@ -963,9 +957,7 @@
                 Cuenta ProductNova
             </p>
 
-            <button class="boton-cerrar-sesion" id="boton-logout">
-                Cerrar sesión
-            </button>
+            <button class="boton-cerrar-sesion" id="boton-logout" data-i18n="cuenta.logout">Cerrar sesión</button>
 
         </div>
 
@@ -981,27 +973,27 @@
 
             <div class="tarjeta">
 
-                <h2>Datos de la cuenta</h2>
+                <h2 data-i18n="cuenta.datos">Datos de la cuenta</h2>
 
                 <div class="datos-grid">
 
                     <div class="dato">
-                        <label>Usuario</label>
+                        <label data-i18n="login.usuario">Usuario</label>
                         <span id="dato-usuario">—</span>
                     </div>
 
                     <div class="dato">
-                        <label>Estado de la sesión</label>
+                        <label data-i18n="cuenta.estadoSesion">Estado de la sesión</label>
                         <span id="dato-estado">—</span>
                     </div>
 
                     <div class="dato">
-                        <label>Recordarme activado</label>
+                        <label data-i18n="cuenta.recordarOn">Recordarme activado</label>
                         <span id="dato-recordar">—</span>
                     </div>
 
                     <div class="dato">
-                        <label>Artículos en la cesta</label>
+                        <label data-i18n="cuenta.nArticulos">Artículos en la cesta</label>
                         <span id="dato-articulos">0</span>
                     </div>
 
@@ -1014,17 +1006,13 @@
 
             <div class="tarjeta">
 
-                <h2>Resumen de tu cesta</h2>
+                <h2 data-i18n="cuenta.resumenCesta">Resumen de tu cesta</h2>
 
                 <div id="pedido-lista"></div>
 
-                <div id="pedido-vacio" class="sin-pedidos">
-                    Todavía no has añadido ningún producto.
-                </div>
+                <div id="pedido-vacio" class="sin-pedidos" data-i18n="cuenta.sinProductos">Todavía no has añadido ningún producto.</div>
 
-                <a href="index.html#productos-seccion" class="ver-cesta">
-                    Ir a productos →
-                </a>
+                <a href="index.html#productos-seccion" class="ver-cesta" data-i18n="cuenta.irProductos">Ir a productos →</a>
 
             </div>
 
@@ -1033,7 +1021,7 @@
 
             <div class="tarjeta">
 
-                <h2>Mis pedidos</h2>
+                <h2 data-i18n="cuenta.misPedidos">Mis pedidos</h2>
 
                 <div id="pedidos-lista"></div>
 
@@ -1067,24 +1055,10 @@
             return localStorage.getItem("sesionIniciada") === "true";
         }
 
-        // Si Stripe ha confirmado el pago, vaciar la cesta local
-        const parametrosPago = new URLSearchParams(
-            window.location.search
-        );
-
-        if (parametrosPago.get("pago") === "exitoso") {
-            localStorage.removeItem("carrito");
-
-            // Limpiar la URL para que no vuelva a procesarse
-            window.history.replaceState(
-                {},
-                document.title,
-                "cuenta.html"
-            );
-        }
-
         if (!haySesionIniciada()) {
+
             window.location.href = "login.html";
+
         }
 
 
@@ -1113,7 +1087,8 @@
                 carritoContainer.style.display = "flex";
                 carritoContainer.style.alignItems = "center";
 
-                loginEnlace.textContent = "Mi cuenta";
+                loginEnlace.setAttribute("data-i18n", "nav.miCuenta");
+                loginEnlace.textContent = I18N.t("nav.miCuenta");
                 loginEnlace.href = "cuenta.html";
 
             } else {
@@ -1121,7 +1096,8 @@
                 carritoContainer.style.display = "none";
                 carritoPanel.classList.remove("abierto");
 
-                loginEnlace.textContent = "Iniciar sesión";
+                loginEnlace.setAttribute("data-i18n", "nav.login");
+                loginEnlace.textContent = I18N.t("nav.login");
                 loginEnlace.href = "login.html";
 
             }
@@ -1206,16 +1182,16 @@
 
                 fila.innerHTML =
                     '<div>' +
-                        '<div class="carrito-item-nombre">' + item.nombre + '</div>' +
-                        '<div class="carrito-item-cantidad">' + item.cantidad + ' x ' + item.precio.toFixed(2).replace(".", ",") + ' €</div>' +
+                        '<div class="carrito-item-nombre">' + I18N.esc(I18N.producto(item.nombre)) + '</div>' +
+                        '<div class="carrito-item-cantidad">' + item.cantidad + ' x ' + I18N.euros(item.precio) + '</div>' +
                     '</div>' +
-                    '<button class="carrito-item-quitar" data-nombre="' + item.nombre + '">Quitar</button>';
+                    '<button class="carrito-item-quitar" data-nombre="' + I18N.esc(item.nombre) + '">' + I18N.t("cesta.quitar") + '</button>';
 
                 carritoLista.appendChild(fila);
 
             });
 
-            carritoTotalImporte.textContent = total.toFixed(2).replace(".", ",") + " €";
+            carritoTotalImporte.textContent = I18N.euros(total);
 
             carritoLista.querySelectorAll(".carrito-item-quitar").forEach(function(boton) {
 
@@ -1261,7 +1237,7 @@
             const usuario =
                 sessionStorage.getItem("usuarioLogueado") ||
                 localStorage.getItem("usuarioRecordado") ||
-                "Usuario";
+                I18N.t("cuenta.usuarioDef");
 
             /* El perfil (nombre real y rol) lo guardó conexion_db.js
                al iniciar sesión, con los datos que devolvió fn_login. */
@@ -1276,24 +1252,24 @@
             document.getElementById("avatar-inicial").textContent =
                 nombreMostrado.charAt(0).toUpperCase();
 
-            if (perfil) {
-                document.getElementById("rol-usuario").textContent =
-                    perfil.rol === "admin"
-                        ? "Administrador de ProductNova"
-                        : "Cuenta de cliente";
-            }
+            document.getElementById("rol-usuario").textContent =
+                !perfil
+                    ? I18N.t("cuenta.rolDefecto")
+                    : (perfil.rol === "admin"
+                        ? I18N.t("cuenta.rolAdmin")
+                        : I18N.t("cuenta.rolCliente"));
 
             const sesionActiva =
                 sessionStorage.getItem("usuarioLogueado") !== null;
 
             document.getElementById("dato-estado").textContent =
-                sesionActiva ? "Sesión activa en este navegador" : "Sesión recordada";
+                sesionActiva ? I18N.t("cuenta.sesionActiva") : I18N.t("cuenta.sesionRecordada");
 
             const recordado =
                 localStorage.getItem("usuarioRecordado") !== null;
 
             document.getElementById("dato-recordar").textContent =
-                recordado ? "Sí" : "No";
+                recordado ? I18N.t("cuenta.si") : I18N.t("cuenta.no");
 
         }
 
@@ -1331,19 +1307,15 @@
 
             carrito.forEach(function(item) {
 
-                const subtotal = (item.precio * item.cantidad)
-                    .toFixed(2)
-                    .replace(".", ",");
-
                 const fila = document.createElement("div");
                 fila.className = "pedido-item";
 
                 fila.innerHTML =
                     '<div>' +
-                        '<div class="pedido-item-nombre">' + item.nombre + '</div>' +
-                        '<div class="pedido-item-cantidad">' + item.cantidad + ' unidad(es)</div>' +
+                        '<div class="pedido-item-nombre">' + I18N.esc(I18N.producto(item.nombre)) + '</div>' +
+                        '<div class="pedido-item-cantidad">' + I18N.t("cuenta.unidades", { n: item.cantidad }) + '</div>' +
                     '</div>' +
-                    '<div class="pedido-item-precio">' + subtotal + ' €</div>';
+                    '<div class="pedido-item-precio">' + I18N.euros(item.precio * item.cantidad) + '</div>';
 
                 pedidoLista.appendChild(fila);
 
@@ -1394,50 +1366,52 @@
         }
 
 
-        async function cargarPedidos() {
+        let pedidosCache = null;
+        let pedidosEstado = "cargando";   // cargando | invitado | lista
+
+
+        /* Pinta (o repinta al cambiar de idioma) el histórico ya descargado */
+
+        function pintarPedidos() {
 
             const lista = document.getElementById("pedidos-lista");
             const vacio = document.getElementById("pedidos-vacio");
 
-            const usuario = DB.usuarioActual();
+            if (pedidosEstado === "cargando") {
 
-
-            if (usuario === "Invitado") {
-
-                vacio.textContent =
-                    "Inicia sesión para ver tu historial de pedidos.";
-
-                return;
-            }
-
-
-            /* fn_pedidos_usuario devuelve cada pedido con sus
-               líneas ya agrupadas en un JSON. */
-
-            const pedidos = await DB.pedidosDe(usuario);
-
-
-            if (!pedidos || pedidos.length === 0) {
-
-                vacio.textContent = "Todavía no has realizado ningún pedido.";
+                lista.innerHTML = "";
+                vacio.textContent = I18N.t("cuenta.cargando");
                 vacio.style.display = "block";
 
                 return;
             }
 
+            if (pedidosEstado === "invitado") {
+
+                vacio.textContent = I18N.t("cuenta.invitado");
+
+                return;
+            }
+
+            if (!pedidosCache || pedidosCache.length === 0) {
+
+                lista.innerHTML = "";
+                vacio.textContent = I18N.t("cuenta.sinPedidos");
+                vacio.style.display = "block";
+
+                return;
+            }
 
             vacio.style.display = "none";
             lista.innerHTML = "";
 
-
-            pedidos.forEach(function(pedido) {
+            pedidosCache.forEach(function(pedido) {
 
                 const detalle = (pedido.detalle || [])
                     .map(function(linea) {
-                        return linea.cantidad + "x " + linea.nombre;
+                        return linea.cantidad + "x " + I18N.producto(linea.nombre);
                     })
                     .join(", ");
-
 
                 const fila = document.createElement("div");
                 fila.className = "pedido-fila";
@@ -1445,23 +1419,46 @@
                 fila.innerHTML =
                     '<div class="pedido-cabecera">' +
                         '<div>' +
-                            '<span class="pedido-ref">Pedido #' + pedido.id + '</span> ' +
-                            '<span class="pedido-fecha">' + DB.fecha(pedido.creado_en) + '</span>' +
+                            '<span class="pedido-ref">' + I18N.t("cuenta.pedido", { id: pedido.id }) + '</span> ' +
+                            '<span class="pedido-fecha">' + I18N.fecha(pedido.creado_en) + '</span>' +
                         '</div>' +
                         '<span class="estado ' + claseEstado(pedido.estado) + '">' +
-                            pedido.estado.replace("_", " ") +
+                            I18N.esc(I18N.estado(pedido.estado)) +
                         '</span>' +
                     '</div>' +
                     '<div class="pedido-cabecera">' +
                         '<span class="pedido-articulos">' +
-                            (detalle || pedido.articulos + " artículo(s)") +
+                            I18N.esc(detalle || I18N.t("cuenta.nArt", { n: pedido.articulos })) +
                         '</span>' +
-                        '<span class="pedido-importe">' + DB.euros(pedido.total) + '</span>' +
+                        '<span class="pedido-importe">' + I18N.euros(pedido.total) + '</span>' +
                     '</div>';
 
                 lista.appendChild(fila);
 
             });
+
+        }
+
+
+        async function cargarPedidos() {
+
+            const usuario = DB.usuarioActual();
+
+            if (usuario === "Invitado") {
+
+                pedidosEstado = "invitado";
+                pintarPedidos();
+
+                return;
+            }
+
+            /* fn_pedidos_usuario devuelve cada pedido con sus
+               líneas ya agrupadas en un JSON. */
+
+            pedidosCache = await DB.pedidosDe(usuario);
+            pedidosEstado = "lista";
+
+            pintarPedidos();
 
         }
 
@@ -1472,11 +1469,40 @@
          * =========================
          */
 
+        /* Al cambiar de idioma se vuelve a pintar todo lo dinámico */
+
+        document.addEventListener("idiomaCambiado", function() {
+            renderizarCarrito();
+            cargarDatosCuenta();
+            renderizarResumenPedido();
+            pintarPedidos();
+        });
+
         actualizarVisibilidadCarrito();
         renderizarCarrito();
         cargarDatosCuenta();
         renderizarResumenPedido();
         cargarPedidos();
+
+        /* Vuelta desde Stripe tras pagar: se vacía la cesta y se avisa.
+           El pedido lo crea el webhook de Stripe, que puede tardar unos
+           segundos: la lista se vuelve a pedir unas cuantas veces. */
+        (function () {
+            if (new URLSearchParams(window.location.search).get("pago") !== "exitoso") return;
+
+            localStorage.removeItem("carrito");
+            localStorage.removeItem("cestaProductNova");
+            renderizarCarrito();
+
+            document.getElementById("aviso-pago").hidden = false;
+            history.replaceState(null, "", window.location.pathname);   // que al recargar no se repita
+
+            let intentos = 0;
+            const reintento = setInterval(function () {
+                cargarPedidos();
+                if (++intentos >= 5) clearInterval(reintento);
+            }, 3000);
+        })();
 
     </script>
 
