@@ -32,13 +32,16 @@
           · Cuando suena cualquier otro audio (vídeos incluidos): se
             transcribe en directo con el reconocimiento de voz del
             navegador (Web Speech API).
-      - Dos formas de "oír" la página:
-          · Audio de la pestaña (la mejor): al activar los subtítulos
-            el navegador pregunta si se comparte la pestaña con su
-            audio. Capta el sonido exacto, también con auriculares.
-            Requiere Chrome/Edge 133 o superior.
-          · Micrófono (alternativa): oye lo que sale por los altavoces.
-            No funciona con auriculares.
+      - Se "oye" la página con el AUDIO DE LA PESTAÑA (no el micrófono):
+        al activar los subtítulos el navegador pregunta si se comparte
+        la pestaña; hay que marcar «Compartir audio de la pestaña».
+        Capta el sonido exacto de vídeos y narrador, también con
+        auriculares. Requiere Chrome o Edge 135 o superior.
+        El navegador no deja hacerlo sin un clic, y la captura se
+        pierde al cambiar de página: por eso en cada página aparece un
+        botón flotante para volver a activarla.
+      - El micrófono ya NO se usa por defecto; solo si la persona
+        pulsa «Usar el micrófono» en el panel (oye los altavoces).
       - Si el sitio de YouTube del index.html tiene subtítulos
         propios, se activan también (cc_load_policy) al encender esta
         opción.
@@ -132,6 +135,14 @@
         subsEstadoMic:["Subtitulando lo que oye el micrófono (altavoces; con auriculares no funciona). Para captar los vídeos con exactitud usa «Captar el audio de la pestaña».",
                        "Captioning what the microphone hears (speakers; it does not work with headphones). To capture videos accurately use \"Capture the tab's audio\".",
                        "正在为麦克风听到的声音生成字幕（需外放，耳机无效）。要准确捕获视频声音，请使用“捕获标签页音频”。"],
+        subsPendiente:["Para subtitular los vídeos y demás sonidos, pulsa «Captar el audio de la pestaña» y marca «Compartir audio de la pestaña».",
+                       "To caption videos and other sounds, press \"Capture the tab's audio\" and tick \"Share tab audio\".",
+                       "要为视频和其他声音生成字幕，请点击“捕获标签页音频”并勾选“共享标签页音频”。"],
+        subsPastilla: ["🎬 Pulsa aquí para subtitular el audio de la página", "🎬 Press here to caption the page's audio", "🎬 点击此处为页面音频生成字幕"],
+        subsBtnMic:   ["Usar el micrófono (solo con altavoces)", "Use the microphone (speakers only)", "使用麦克风（仅限外放）"],
+        subsNoPestana:["Tu navegador no puede captar el audio de la pestaña (hace falta Chrome o Edge 135 o superior). Solo puedes subtitular con el micrófono, que oye los altavoces.",
+                       "Your browser cannot capture the tab's audio (Chrome or Edge 135 or newer is needed). You can only caption with the microphone, which hears the speakers.",
+                       "您的浏览器无法捕获标签页音频（需要 Chrome 或 Edge 135 及以上版本）。只能使用麦克风（收听扬声器）生成字幕。"],
         subsNoSoporta:["Tu navegador no admite reconocimiento de voz: los subtítulos solo cubren al narrador. Para subtitular vídeos usa Chrome o Edge.",
                        "Your browser does not support speech recognition: subtitles only cover the narrator. To caption videos use Chrome or Edge.",
                        "您的浏览器不支持语音识别：字幕仅覆盖朗读内容。要为视频生成字幕，请使用 Chrome 或 Edge。"],
@@ -230,7 +241,7 @@
 
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
     var vChrome = +((navigator.userAgent.match(/(?:Chrome|Chromium|Edg)\/(\d+)/) || [])[1] || 0);
-    var PUEDE_PISTA = !!SR && vChrome >= 133 && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+    var PUEDE_PISTA = !!SR && vChrome >= 135 && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
 
     var escucha = { modo: "", rec: null, flujo: null, pista: null, reiniciar: false, msg: "" };
     var finNarrador = 0;
@@ -320,10 +331,11 @@
         estadoSubs();
     }
 
-    // Debe llamarse desde un gesto de la persona (clic): el navegador pregunta qué compartir
+    // Debe llamarse desde un gesto de la persona (clic): el navegador pregunta qué compartir.
+    // NO hay micrófono de reserva: si no se comparte el audio de la pestaña, no se transcribe nada.
     function captarPestana() {
         escucha.msg = "";
-        if (!PUEDE_PISTA) { arrancarReconocedor(); return; }
+        if (!PUEDE_PISTA) { estadoSubs(); return; }
         var pedido;
         try {
             pedido = navigator.mediaDevices.getDisplayMedia({
@@ -331,7 +343,7 @@
                 audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
                 preferCurrentTab: true, selfBrowserSurface: "include", systemAudio: "include"
             });
-        } catch (e) { arrancarReconocedor(); return; }
+        } catch (e) { escucha.msg = "subsPermiso"; estadoSubs(); return; }
 
         pedido.then(function (flujo) {
             flujo.getVideoTracks().forEach(function (t) { t.stop(); });   // solo interesa el audio
@@ -339,7 +351,7 @@
             if (!pistas.length) {
                 flujo.getTracks().forEach(function (t) { t.stop(); });
                 escucha.msg = "subsSinAudioPestana";
-                arrancarReconocedor();                                       // alternativa: micrófono
+                estadoSubs();
                 return;
             }
             soltarFlujo();
@@ -349,13 +361,25 @@
                 if (escucha.pista !== pistas[0]) return;
                 escucha.flujo = null;
                 escucha.pista = null;
-                if (subsActivo) arrancarReconocedor();
+                escucha.reiniciar = false;
+                var r = escucha.rec;
+                escucha.rec = null;
+                if (r) { r.onend = null; try { r.abort(); } catch (e) { } }
+                escucha.modo = "";
+                estadoSubs();
             });
             arrancarReconocedor();
         }, function () {
             escucha.msg = "subsPermiso";                                   // canceló o lo bloqueó
-            arrancarReconocedor();                                           // alternativa: micrófono
+            estadoSubs();
         });
+    }
+
+    // Solo si la persona lo pide expresamente (botón del panel)
+    function usarMicrofono() {
+        escucha.msg = "";
+        soltarFlujo();
+        arrancarReconocedor();
     }
 
     function estadoSubs() {
@@ -366,12 +390,24 @@
             else if (!SR) { txt = T("subsNoSoporta"); ok = false; }
             else if (escucha.modo === "pestana") txt = T("subsEstadoPestana");
             else if (escucha.modo === "mic") txt = T("subsEstadoMic");
+            else if (PUEDE_PISTA) txt = T("subsPendiente");
+            else { txt = T("subsNoPestana"); ok = false; }
         }
         ui.subsAviso.textContent = txt;
         ui.subsAviso.classList.toggle("ok", ok);
         ui.subsAviso.hidden = !txt;
-        if (ui.subsBotones) ui.subsBotones.hidden = !(subsActivo && PUEDE_PISTA && escucha.modo !== "pestana");
-        if (ui.subsPestana) ui.subsPestana.textContent = T("subsBtnPestana");
+
+        var verPestana = subsActivo && PUEDE_PISTA && escucha.modo !== "pestana";
+        var verMic = subsActivo && !!SR && escucha.modo !== "mic";
+        if (ui.subsBotones) ui.subsBotones.hidden = !(verPestana || verMic);
+        if (ui.subsPestana) { ui.subsPestana.hidden = !verPestana; ui.subsPestana.textContent = T("subsBtnPestana"); }
+        if (ui.subsMic) { ui.subsMic.hidden = !verMic; ui.subsMic.textContent = T("subsBtnMic"); }
+
+        // Botón flotante en la propia página: mientras no se haya compartido el audio
+        if (ui.subsPastilla) {
+            ui.subsPastilla.hidden = !(subsActivo && PUEDE_PISTA && escucha.modo === "");
+            ui.subsPastilla.textContent = T("subsPastilla");
+        }
     }
 
 
@@ -415,6 +451,11 @@
         '  max-width:min(900px,92vw);padding:10px 18px;border-radius:10px;background:rgba(0,0,0,.88);color:#fff;font-family:inherit;',
         '  font-size:20px;font-weight:600;line-height:1.4;text-align:center;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.35)}',
         '#pn-subtitulos[hidden]{display:none}',
+        '#pn-subs-activar{position:fixed;left:50%;bottom:calc(max(24px,env(safe-area-inset-bottom)) + 64px);transform:translateX(-50%);z-index:2600;',
+        '  max-width:92vw;padding:12px 22px;border:0;border-radius:999px;background:var(--azul,#2563eb);color:#fff;font:inherit;font-size:15px;font-weight:700;',
+        '  cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.3)}',
+        '#pn-subs-activar:hover,#pn-subs-activar:focus-visible{background:var(--azul-oscuro,#0f172a);outline:3px solid #fff;outline-offset:2px}',
+        '#pn-subs-activar[hidden]{display:none}',
         '@media (max-width:600px){#pn-subtitulos{font-size:16px;padding:8px 12px}}',
         '#a11y-panel select:disabled{opacity:.55;cursor:not-allowed}',
         '@media (max-width:600px){#a11y-boton{width:38px;height:38px}#selector-a11y.flotante{top:10px;right:92px}',
@@ -847,8 +888,7 @@
         escucha.msg = "";
         if (!subsActivo) { pararEscucha(); ocultarSubtitulo(); }
         else if (desdeUsuario) captarPestana();   // gesto de la persona: se puede pedir el audio de la pestaña
-        else arrancarReconocedor();               // al cargar la página: micrófono (el audio de la pestaña pide gesto)
-        refrescarTextos();
+        refrescarTextos();                        // (sin gesto no se puede: aparece el botón flotante)
         document.dispatchEvent(new CustomEvent("subtitulosCambiados", { detail: { activo: subsActivo } }));
         if (desdeUsuario) hablar(subsActivo ? T("subsOn") : T("subsOff"));
     }
@@ -916,7 +956,7 @@
                     '<label class="a11y-sw"><input type="checkbox" role="switch" id="a11y-subs" aria-describedby="a11y-subs-ayuda"><span id="a11y-subs-txt"></span></label>' +
                     '<p class="a11y-ayuda" id="a11y-subs-ayuda"></p>' +
                     '<p class="a11y-aviso" id="a11y-subs-aviso" role="status" hidden></p>' +
-                    '<div class="a11y-botones" id="a11y-subs-botones" hidden><button type="button" id="a11y-subs-pestana"></button></div>' +
+                    '<div class="a11y-botones" id="a11y-subs-botones" style="flex-direction:column" hidden><button type="button" id="a11y-subs-pestana"></button><button type="button" id="a11y-subs-mic"></button></div>' +
                 '</div>' +
 
                 '<p class="a11y-atajos" id="a11y-atajos"></p>' +
@@ -943,6 +983,15 @@
         ui.subsAviso = caja.querySelector("#a11y-subs-aviso");
         ui.subsBotones = caja.querySelector("#a11y-subs-botones");
         ui.subsPestana = caja.querySelector("#a11y-subs-pestana");
+        ui.subsMic = caja.querySelector("#a11y-subs-mic");
+
+        // Botón flotante: el navegador exige un clic para poder captar el audio de la pestaña
+        ui.subsPastilla = document.createElement("button");
+        ui.subsPastilla.type = "button";
+        ui.subsPastilla.id = "pn-subs-activar";
+        ui.subsPastilla.hidden = true;
+        document.body.appendChild(ui.subsPastilla);
+        ui.subsPastilla.addEventListener("click", captarPestana);
         ui.vel = caja.querySelector("#a11y-vel");
         ui.aviso = caja.querySelector("#a11y-aviso");
 
@@ -970,6 +1019,7 @@
         ui.dalto.addEventListener("change", function () { activarDaltonico(ui.dalto.checked, true); });
         ui.subs.addEventListener("change", function () { activarSubtitulos(ui.subs.checked, true); });
         ui.subsPestana.addEventListener("click", captarPestana);
+        ui.subsMic.addEventListener("click", usarMicrofono);
         ui.vel.addEventListener("change", function () {
             velocidad = ui.vel.value;
             guardar(CLAVE_VELOCIDAD, velocidad);
@@ -1175,7 +1225,7 @@
         engancharEventos();
         if (synth) { try { synth.getVoices(); } catch (e) { } }   // Chrome las carga en la primera consulta
         if (activo) introPagina();
-        if (subsActivo) arrancarReconocedor();   // sin gesto solo se puede el micrófono
+        if (subsActivo) estadoSubs();   // sin gesto no se puede captar la pestaña: se muestra el botón flotante
     }
 
     if (document.readyState === "loading") {
