@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sobre nosotros | ProductNova</title>
+<title data-i18n="sobre.title">Sobre nosotros | ProductNova</title>
+<script src="idioma.js"></script>
+<script src="accesibilidad.js"></script>
 <style>
-:root{--blue:#2563eb;--blue-d:#1d4ed8;--soft:#eff4ff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--bg:#f8fafc}
+:root{--azul:#2563eb;--azul-oscuro:#0f172a;--azul-claro:#eff6ff;--texto:#1e293b;--texto-secundario:#64748b;--blanco:#fff;--borde:#e2e8f0;--blue:#2563eb;--blue-d:#1d4ed8;--soft:#eff4ff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--bg:#f8fafc}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
@@ -86,39 +88,39 @@ footer{margin-top:48px;padding:28px 0;border-top:1px solid var(--line);color:#94
 
 <header>
   <div class="wrap">
-    <nav aria-label="Principal">
-      <a class="logo" href="index.html" aria-label="ProductNova, inicio">
+    <nav aria-label="Principal" data-i18n-aria="sobre.navAria">
+      <a class="logo" href="index.html" aria-label="ProductNova, inicio" data-i18n-aria="sobre.logoAria">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#2563eb" d="M16 1l3.2 9.8L29 8l-6.6 7.8L31 20l-10 .8L24 31l-8-6-8 6 3-10.2L1 20l8.6-4.2L3 8l9.8 2.8z"/></svg>
         ProductNova
       </a>
       <ul class="menu">
-        <li class="on"><a href="sobrenosotros.html" aria-current="page">Sobre nosotros</a></li>
+        <li class="on"><a href="sobrenosotros.html" aria-current="page" data-i18n="nav.sobre">Sobre nosotros</a></li>
         <li>
-          <button type="button" aria-haspopup="true">Productos</button>
+          <button type="button" aria-haspopup="true" data-i18n="sobre.menuProductos">Productos</button>
           <ul class="drop">
-            <li><a href="index.html#frigorifico">Frigorífico No Frost</a></li>
-            <li><a href="index.html#lavadora">Lavadora carga frontal</a></li>
-            <li><a href="index.html#horno">Horno multifunción</a></li>
-            <li><a href="index.html#microondas">Microondas digital</a></li>
-            <li><a href="index.html#lavavajillas">Lavavajillas integrable</a></li>
+            <li><a href="index.html#p1" data-i18n-producto="Frigorífico No Frost">Frigorífico No Frost</a></li>
+            <li><a href="index.html#p2" data-i18n-producto="Lavadora carga frontal">Lavadora carga frontal</a></li>
+            <li><a href="index.html#p3" data-i18n-producto="Horno multifunción">Horno multifunción</a></li>
+            <li><a href="index.html#p4" data-i18n-producto="Microondas digital">Microondas digital</a></li>
+            <li><a href="index.html#p5" data-i18n-producto="Lavavajillas integrable">Lavavajillas integrable</a></li>
           </ul>
         </li>
         <li>
-          <button type="button" aria-haspopup="true">Servicios</button>
+          <button type="button" aria-haspopup="true" data-i18n="sobre.menuServicios">Servicios</button>
           <ul class="drop">
-            <li><a href="#servicios">Instalación a domicilio</a></li>
-            <li><a href="#servicios">Reparación a domicilio</a></li>
-            <li><a href="#servicios">Mantenimiento anual</a></li>
-            <li><a href="#servicios">Garantía extendida</a></li>
-            <li><a href="#servicios">Soporte técnico 24/7</a></li>
+            <li><a href="#servicios" data-i18n-producto="Instalación a domicilio">Instalación a domicilio</a></li>
+            <li><a href="#servicios" data-i18n-producto="Reparación a domicilio">Reparación a domicilio</a></li>
+            <li><a href="#servicios" data-i18n-producto="Mantenimiento anual">Mantenimiento anual</a></li>
+            <li><a href="#servicios" data-i18n-producto="Garantía extendida">Garantía extendida</a></li>
+            <li><a href="#servicios" data-i18n-producto="Soporte técnico 24/7">Soporte técnico 24/7</a></li>
           </ul>
         </li>
       </ul>
       <div class="right">
-        <a class="cart" href="pagos.html" aria-label="Carrito">
+        <a class="cart" href="pagos.html" aria-label="Carrito" data-i18n-aria="sobre.carritoAria">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/></svg>
         </a>
-        <a class="btn" href="login.html">Mi cuenta</a>
+        <a class="btn" href="login.html" data-i18n="nav.miCuenta">Mi cuenta</a>
       </div>
     </nav>
   </div>
@@ -128,91 +130,91 @@ footer{margin-top:48px;padding:28px 0;border-top:1px solid var(--line);color:#94
   <div class="wrap">
 
     <div class="hero">
-      <h1>Electrodomésticos y servicios para <span>tu hogar</span></h1>
-      <p>En ProductNova vendemos electrodomésticos de calidad y nos encargamos de su instalación, reparación y mantenimiento, para que tu día a día sea más cómodo y eficiente.</p>
+      <h1 data-i18n-html="sobre.heroH1">Electrodomésticos y servicios para <span>tu hogar</span></h1>
+      <p data-i18n="sobre.heroP">En ProductNova vendemos electrodomésticos de calidad y nos encargamos de su instalación, reparación y mantenimiento, para que tu día a día sea más cómodo y eficiente.</p>
     </div>
 
     <section>
       <div class="two">
         <div>
-          <h2>Quiénes somos</h2>
-          <p>ProductNova es una tienda de electrodomésticos con atención en tres sucursales: Madrid, Cádiz y Lima. Seleccionamos productos para la cocina y el hogar, y los acompañamos con servicios que cubren lo que pasa después de la compra.</p>
-          <p>Creemos que comprar un electrodoméstico no termina al pagarlo. Por eso ofrecemos instalación a domicilio, reparación, mantenimiento anual, garantía extendida y soporte técnico 24/7.</p>
-          <p style="margin-top:22px"><a class="btn" href="index.html#productos">Ver productos</a></p>
+          <h2 data-i18n="sobre.quienesH2">Quiénes somos</h2>
+          <p data-i18n="sobre.quienesP1">ProductNova es una tienda de electrodomésticos con atención en tres sucursales: Madrid, Cádiz y Lima. Seleccionamos productos para la cocina y el hogar, y los acompañamos con servicios que cubren lo que pasa después de la compra.</p>
+          <p data-i18n="sobre.quienesP2">Creemos que comprar un electrodoméstico no termina al pagarlo. Por eso ofrecemos instalación a domicilio, reparación, mantenimiento anual, garantía extendida y soporte técnico 24/7.</p>
+          <p style="margin-top:22px"><a class="btn" href="index.html#productos-seccion" data-i18n="sobre.verProductos">Ver productos</a></p>
         </div>
-        <div class="panel" aria-label="Lo que ofrecemos">
+        <div class="panel" aria-label="Lo que ofrecemos" data-i18n-aria="sobre.panelAria">
           <div>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14M9 5v2M9 13v3"/></svg>
-            <span><strong>5 familias de producto</strong><small>Frigoríficos, lavadoras, hornos, microondas y lavavajillas</small></span>
+            <span><strong data-i18n="sobre.fam">5 familias de producto</strong><small data-i18n="sobre.famSub">Frigoríficos, lavadoras, hornos, microondas y lavavajillas</small></span>
           </div>
           <div>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>
-            <span><strong>5 servicios a tu lado</strong><small>Desde la instalación hasta el soporte técnico</small></span>
+            <span><strong data-i18n="sobre.serv5">5 servicios a tu lado</strong><small data-i18n="sobre.serv5Sub">Desde la instalación hasta el soporte técnico</small></span>
           </div>
           <div>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            <span><strong>3 sucursales</strong><small>Madrid, Cádiz y Lima</small></span>
+            <span><strong data-i18n="sobre.suc3">3 sucursales</strong><small data-i18n="sobre.suc3Sub">Madrid, Cádiz y Lima</small></span>
           </div>
         </div>
       </div>
     </section>
 
     <section>
-      <h2>Lo que nos importa</h2>
-      <p class="sub">Tres ideas que guían cómo trabajamos.</p>
+      <h2 data-i18n="sobre.valoresH2">Lo que nos importa</h2>
+      <p class="sub" data-i18n="sobre.valoresSub">Tres ideas que guían cómo trabajamos.</p>
       <div class="grid g3">
         <div class="card">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.600 5.700 21.100l1.500-7L2 9.300l7-.8z"/></svg></div>
-          <h3>Calidad</h3>
-          <p>Elegimos electrodomésticos con prestaciones claras, como el motor inverter silencioso de nuestra lavadora o la tecnología No Frost de nuestro frigorífico.</p>
+          <h3 data-i18n="sobre.calidad">Calidad</h3>
+          <p data-i18n="sobre.calidadP">Elegimos electrodomésticos con prestaciones claras, como el motor inverter silencioso de nuestra lavadora o la tecnología No Frost de nuestro frigorífico.</p>
         </div>
         <div class="card">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.500 8.500-8 10-4.500-1.500-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-          <h3>Compra segura</h3>
-          <p>Los pagos se hacen con Stripe: tus datos de pago los procesa directamente Stripe y no pasan por nuestra tienda.</p>
+          <h3 data-i18n="sobre.segura">Compra segura</h3>
+          <p data-i18n="sobre.seguraP">Los pagos se hacen con Stripe: tus datos de pago los procesa directamente Stripe y no pasan por nuestra tienda.</p>
         </div>
         <div class="card">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><rect x="2" y="12" width="4" height="7" rx="1.500"/><rect x="18" y="12" width="4" height="7" rx="1.500"/><path d="M20 19a4 4 0 0 1-4 3h-2"/></svg></div>
-          <h3>Atención continua</h3>
-          <p>Tenemos soporte técnico 24/7 y servicio a domicilio, para resolver cualquier duda o avería sin que tengas que desplazarte.</p>
+          <h3 data-i18n="sobre.atencion">Atención continua</h3>
+          <p data-i18n="sobre.atencionP">Tenemos soporte técnico 24/7 y servicio a domicilio, para resolver cualquier duda o avería sin que tengas que desplazarte.</p>
         </div>
       </div>
     </section>
 
     <section id="servicios" class="serv">
-      <h2>Nuestros servicios</h2>
-      <p class="sub">Cuidamos tu electrodoméstico durante toda su vida útil.</p>
+      <h2 data-i18n="sobre.servH2">Nuestros servicios</h2>
+      <p class="sub" data-i18n="sobre.servSub">Cuidamos tu electrodoméstico durante toda su vida útil.</p>
       <div class="grid g5">
-        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10H3z"/><path d="M9 21v-6h6v6"/></svg></div><h3>Instalación a domicilio</h3></div>
-        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.700 6.300a4 4 0 0 0-5 5L3 18l3 3 6.700-6.700a4 4 0 0 0 5-5l-2.500 2.500-2.400-.6-.6-2.400z"/></svg></div><h3>Reparación a domicilio</h3></div>
-        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><h3>Mantenimiento anual</h3></div>
-        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.500 8.500-8 10-4.500-1.500-8-5-8-10V6z"/></svg></div><h3>Garantía extendida</h3></div>
-        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Soporte técnico 24/7</h3></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10H3z"/><path d="M9 21v-6h6v6"/></svg></div><h3 data-i18n-producto="Instalación a domicilio">Instalación a domicilio</h3></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.700 6.300a4 4 0 0 0-5 5L3 18l3 3 6.700-6.700a4 4 0 0 0 5-5l-2.500 2.500-2.400-.6-.6-2.400z"/></svg></div><h3 data-i18n-producto="Reparación a domicilio">Reparación a domicilio</h3></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><h3 data-i18n-producto="Mantenimiento anual">Mantenimiento anual</h3></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.500 8.500-8 10-4.500-1.500-8-5-8-10V6z"/></svg></div><h3 data-i18n-producto="Garantía extendida">Garantía extendida</h3></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3 data-i18n-producto="Soporte técnico 24/7">Soporte técnico 24/7</h3></div>
       </div>
     </section>
 
     <section>
-      <h2>Dónde estamos</h2>
-      <p class="sub">Atendemos desde tres sucursales.</p>
+      <h2 data-i18n="sobre.dondeH2">Dónde estamos</h2>
+      <p class="sub" data-i18n="sobre.dondeSub">Atendemos desde tres sucursales.</p>
       <div class="grid g3">
-        <div class="card city"><h3>Madrid</h3><p>Sucursal en Madrid.</p></div>
-        <div class="card city"><h3>Cádiz</h3><p>Sucursal en Cádiz.</p></div>
-        <div class="card city"><h3>Lima</h3><p>Sucursal en Lima.</p></div>
+        <div class="card city"><h3 data-i18n="sobre.madrid">Madrid</h3><p data-i18n="sobre.sucMadrid">Sucursal en Madrid.</p></div>
+        <div class="card city"><h3 data-i18n="sobre.cadiz">Cádiz</h3><p data-i18n="sobre.sucCadiz">Sucursal en Cádiz.</p></div>
+        <div class="card city"><h3 data-i18n="sobre.lima">Lima</h3><p data-i18n="sobre.sucLima">Sucursal en Lima.</p></div>
       </div>
     </section>
 
     <section>
       <div class="cta">
-        <h2>Encuentra el electrodoméstico que necesitas</h2>
-        <p>Mira el catálogo y compra con pago seguro mediante Stripe.</p>
-        <a class="btn" href="index.html#productos">Ver productos</a>
+        <h2 data-i18n="sobre.ctaH2">Encuentra el electrodoméstico que necesitas</h2>
+        <p data-i18n="sobre.ctaP">Mira el catálogo y compra con pago seguro mediante Stripe.</p>
+        <a class="btn" href="index.html#productos-seccion" data-i18n="sobre.verProductos">Ver productos</a>
       </div>
     </section>
 
   </div>
 </main>
 
-<footer>© 2026 ProductNova · Todos los derechos reservados.</footer>
+<footer data-i18n="sobre.copy">© 2026 ProductNova · Todos los derechos reservados.</footer>
 
 </body>
 </html>
