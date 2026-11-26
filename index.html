@@ -736,7 +736,7 @@
 
 
         /* =========================
-           VÍDEO (YouTube)
+           VÍDEO (local)
         ========================= */
 
         .video-marco {
@@ -752,49 +752,13 @@
             overflow: hidden;
         }
 
-        .video-marco iframe {
+        .video-marco video {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
-            border: 0;
-        }
-
-        .video-vacio {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 20px;
-            text-align: center;
-            color: #cbd5e1;
-            font-size: 15px;
-        }
-
-        .video-vacio svg {
-            width: 52px;
-            height: 52px;
-            stroke: #94a3b8;
-        }
-
-        .video-enlace {
-            max-width: 960px;
-            margin: 14px auto 0;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        .video-enlace a {
-            color: var(--azul);
-            font-weight: 600;
-        }
-
-        .video-enlace a:hover,
-        .video-enlace a:focus-visible {
-            text-decoration: underline;
+            object-fit: contain;
+            background: #000;
         }
 
         #video-seccion .titulo-seccion {
@@ -1396,7 +1360,7 @@
 
         <!-- =========================
              VÍDEO (abajo del todo, antes del pie de página)
-             El vídeo se elige en la constante VIDEO_YOUTUBE del script.
+             El vídeo es el archivo local video.mp4 (misma carpeta que este index.html).
         ========================= -->
 
         <section class="seccion" id="video-seccion" aria-labelledby="video-titulo" style="margin-bottom: 0;">
@@ -1408,10 +1372,14 @@
                 </div>
             </div>
 
-            <div class="video-marco" id="video-marco"></div>
-
-            <div class="video-enlace" id="video-enlace" hidden>
-                <a id="video-enlace-a" href="#" target="_blank" rel="noopener noreferrer" data-i18n="index.videoEnlace">Ver en YouTube ↗</a>
+            <div class="video-marco" id="video-marco">
+                <video controls preload="metadata" playsinline>
+                    <source src="video.mp4" type="video/mp4">
+                    <track kind="subtitles" src="subtitulos_es.vtt" srclang="es" label="Español">
+                    <track kind="subtitles" src="subtitulos_en.vtt" srclang="en" label="English">
+                    <track kind="subtitles" src="subtitulos_zh.vtt" srclang="zh" label="中文">
+                    Tu navegador no admite la reproducción de vídeo.
+                </video>
             </div>
 
         </section>
@@ -1993,99 +1961,35 @@
         cargarCatalogo();
         sincronizarCarritoDesdeServidor();
 
-    
-
         /*
          * =========================
-         * VÍDEO DE YOUTUBE
+         * SUBTÍTULOS DEL VÍDEO
          * =========================
          *
-         * Pon aquí el vídeo: vale el enlace completo (watch?v=..., youtu.be/...,
-         * /shorts/..., /embed/...) o solo el ID de 11 caracteres.
-         * Mientras esté vacío se muestra un marcador y no se carga nada de YouTube.
-         *
-         * const VIDEO_YOUTUBE = "https://www.youtube.com/watch?v=6TJfVhAolx4";
-         *
-         * Se usa youtube-nocookie.com (no instala cookies hasta que se pulsa play),
-         * el reproductor sale en el idioma de la web y carga en diferido.
-         * Nota: YouTube no está disponible en la China continental; el enlace
-         * "Ver en YouTube" queda como alternativa.
+         * El vídeo lleva tres pistas WebVTT (es, en, zh). Siempre se muestra
+         * la del idioma de la web, y cambia sola al cambiar de idioma.
+         * También se pueden elegir o quitar a mano con el botón CC del reproductor.
          */
 
-        const VIDEO_YOUTUBE = "https://www.youtube.com/watch?v=QfX0-BWhMKQ";
+        function sincronizarSubtitulosVideo() {
 
-        function idDeYoutube(texto) {
+            const video = document.querySelector("#video-marco video");
 
-            const t = String(texto || "").trim();
+            if (!video) return;
 
-            if (/^[\w-]{11}$/.test(t)) return t;
-
-            const m = t.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{11})/);
-
-            return m ? m[1] : null;
+            Array.prototype.forEach.call(video.textTracks, function(pista) {
+                pista.mode = (pista.language === I18N.idioma) ? "showing" : "disabled";
+            });
 
         }
 
-        function pintarVideo() {
+        document.addEventListener("idiomaCambiado", sincronizarSubtitulosVideo);
 
-            const marco = document.getElementById("video-marco");
-            const enlace = document.getElementById("video-enlace");
-            const id = idDeYoutube(VIDEO_YOUTUBE);
-
-            if (!marco) return;
-
-            if (!id) {
-
-                marco.innerHTML =
-                    '<div class="video-vacio">' +
-                        '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-                            '<rect x="2" y="5" width="20" height="14" rx="3"></rect><polygon points="10 9 16 12 10 15 10 9"></polygon>' +
-                        '</svg>' +
-                        '<span>' + I18N.esc(I18N.t("index.videoVacio")) + '</span>' +
-                    '</div>';
-
-                enlace.hidden = true;
-                return;
-
-            }
-
-            const idiomaYT = { es: "es", en: "en", zh: "zh-CN" }[I18N.idioma] || "en";
-
-            // Con los subtítulos de accesibilidad activados, el vídeo muestra además sus propios subtítulos
-            const subs = !!(window.Accesibilidad && Accesibilidad.subtitulos);
-
-            const src = "https://www.youtube-nocookie.com/embed/" + id +
-                "?rel=0&modestbranding=1&playsinline=1&hl=" + idiomaYT + "&cc_lang_pref=" + idiomaYT +
-                (subs ? "&cc_load_policy=1" : "");
-
-            let iframe = marco.querySelector("iframe");
-
-            if (!iframe) {
-                marco.innerHTML = "";
-                iframe = document.createElement("iframe");
-                iframe.loading = "lazy";
-                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-                iframe.referrerPolicy = "strict-origin-when-cross-origin";
-                iframe.allowFullscreen = true;
-                marco.appendChild(iframe);
-            }
-
-            // solo se recarga el reproductor si cambia el idioma (no al refrescar precios)
-            if (iframe.dataset.src !== src) {
-                iframe.dataset.src = src;
-                iframe.src = src;
-            }
-
-            iframe.title = I18N.t("index.videoIframe");
-
-            document.getElementById("video-enlace-a").href = "https://www.youtube.com/watch?v=" + id;
-            enlace.hidden = false;
-
-        }
-
-        document.addEventListener("idiomaCambiado", pintarVideo);
-        document.addEventListener("subtitulosCambiados", pintarVideo);
-        pintarVideo();
+        (function() {
+            const video = document.querySelector("#video-marco video");
+            if (video) video.addEventListener("loadedmetadata", sincronizarSubtitulosVideo);
+            sincronizarSubtitulosVideo();
+        })();
 
 </script>
 

@@ -24,30 +24,6 @@
         iconos ✔ ✖, bordes continuos / discontinuos / punteados,
         enlaces subrayados y foco del teclado más grueso.
 
-   3) SUBTÍTULOS DEL AUDIO
-      - Muestran por escrito, en una barra en la parte inferior de la
-        pantalla, TODO lo que suena en la página, en el idioma de la
-        web (Español, English, 中文):
-          · Cuando habla el narrador: su mismo texto, sincronizado.
-          · Cuando suena cualquier otro audio (vídeos incluidos): se
-            transcribe en directo con el reconocimiento de voz del
-            navegador (Web Speech API).
-      - Se "oye" la página con el AUDIO DE LA PESTAÑA (no el micrófono):
-        al activar los subtítulos el navegador pregunta si se comparte
-        la pestaña; hay que marcar «Compartir audio de la pestaña».
-        Capta el sonido exacto de vídeos y narrador, también con
-        auriculares. Requiere Chrome o Edge 135 o superior.
-        El navegador no deja hacerlo sin un clic, y la captura se
-        pierde al cambiar de página: por eso en cada página aparece un
-        botón flotante para volver a activarla.
-      - El micrófono ya NO se usa por defecto; solo si la persona
-        pulsa «Usar el micrófono» en el panel (oye los altavoces).
-      - Si el sitio de YouTube del index.html tiene subtítulos
-        propios, se activan también (cc_load_policy) al encender esta
-        opción.
-      - El reconocimiento de voz de Chrome/Edge envía el audio al
-        servicio de voz del navegador para transcribirlo.
-
    Se carga DESPUÉS de idioma.js y ANTES de conexion_db.js:
 
        <script src="idioma.js"></script>
@@ -57,8 +33,6 @@
    API por si otra página la necesita:
        Accesibilidad.decir("texto")    → lo dice si el narrador está activo
        Accesibilidad.activo            → true / false
-       Accesibilidad.subtitulos        → true / false (subtítulos del audio)
-       (evento "subtitulosCambiados" en document cuando se encienden/apagan)
    ============================================================ */
 
 (function () {
@@ -67,7 +41,6 @@
     var CLAVE_NARRADOR = "pn_narrador";
     var CLAVE_VELOCIDAD = "pn_narrador_vel";
     var CLAVE_DALTONICO = "pn_daltonico";
-    var CLAVE_SUBS = "pn_subs";
 
     var VELOCIDADES = { lenta: 0.8, normal: 1, rapida: 1.35 };
     var ORDEN = ["es", "en", "zh"];
@@ -86,7 +59,6 @@
     var activo = leer(CLAVE_NARRADOR, "0") === "1" && !!synth;
     var daltonico = leer(CLAVE_DALTONICO, "0") === "1";
     var velocidad = VELOCIDADES[leer(CLAVE_VELOCIDAD, "normal")] ? leer(CLAVE_VELOCIDAD, "normal") : "normal";
-    var subsActivo = leer(CLAVE_SUBS, "0") === "1";
 
 
     /* ============================================================
@@ -124,36 +96,6 @@
         daltoOn:      ["Modo daltónico activado.", "Colour-blind mode on.", "色盲模式已开启。"],
         daltoOff:     ["Modo daltónico desactivado.", "Colour-blind mode off.", "色盲模式已关闭。"],
         idiomaCambiado:["Idioma cambiado a español.", "Language changed to English.", "语言已切换为中文。"],
-        subs:         ["Subtítulos", "Subtitles", "字幕"],
-        subsAyuda:    ["Muestra por escrito, en la parte inferior de la pantalla, todo lo que suena en la página (narrador y vídeos), en el idioma de la web.",
-                       "Shows in writing, at the bottom of the screen, everything that plays on the page (narrator and videos), in the website's language.",
-                       "在屏幕底部以文字显示页面上的所有声音（朗读和视频），语言与网站一致。"],
-        subsBtnPestana:["Captar el audio de la pestaña", "Capture the tab's audio", "捕获标签页音频"],
-        subsEstadoPestana:["Subtitulando el audio de la pestaña, vídeos incluidos.",
-                           "Captioning the tab's audio, videos included.",
-                           "正在为标签页音频（包括视频）生成字幕。"],
-        subsEstadoMic:["Subtitulando lo que oye el micrófono (altavoces; con auriculares no funciona). Para captar los vídeos con exactitud usa «Captar el audio de la pestaña».",
-                       "Captioning what the microphone hears (speakers; it does not work with headphones). To capture videos accurately use \"Capture the tab's audio\".",
-                       "正在为麦克风听到的声音生成字幕（需外放，耳机无效）。要准确捕获视频声音，请使用“捕获标签页音频”。"],
-        subsPendiente:["Para subtitular los vídeos y demás sonidos, pulsa «Captar el audio de la pestaña» y marca «Compartir audio de la pestaña».",
-                       "To caption videos and other sounds, press \"Capture the tab's audio\" and tick \"Share tab audio\".",
-                       "要为视频和其他声音生成字幕，请点击“捕获标签页音频”并勾选“共享标签页音频”。"],
-        subsPastilla: ["🎬 Pulsa aquí para subtitular el audio de la página", "🎬 Press here to caption the page's audio", "🎬 点击此处为页面音频生成字幕"],
-        subsBtnMic:   ["Usar el micrófono (solo con altavoces)", "Use the microphone (speakers only)", "使用麦克风（仅限外放）"],
-        subsNoPestana:["Tu navegador no puede captar el audio de la pestaña (hace falta Chrome o Edge 135 o superior). Solo puedes subtitular con el micrófono, que oye los altavoces.",
-                       "Your browser cannot capture the tab's audio (Chrome or Edge 135 or newer is needed). You can only caption with the microphone, which hears the speakers.",
-                       "您的浏览器无法捕获标签页音频（需要 Chrome 或 Edge 135 及以上版本）。只能使用麦克风（收听扬声器）生成字幕。"],
-        subsNoSoporta:["Tu navegador no admite reconocimiento de voz: los subtítulos solo cubren al narrador. Para subtitular vídeos usa Chrome o Edge.",
-                       "Your browser does not support speech recognition: subtitles only cover the narrator. To caption videos use Chrome or Edge.",
-                       "您的浏览器不支持语音识别：字幕仅覆盖朗读内容。要为视频生成字幕，请使用 Chrome 或 Edge。"],
-        subsPermiso:  ["No se pudo acceder al audio. Revisa los permisos del navegador (micrófono o compartir pestaña).",
-                       "Could not access the audio. Check the browser permissions (microphone or tab sharing).",
-                       "无法访问音频。请检查浏览器权限（麦克风或共享标签页）。"],
-        subsSinAudioPestana:["Has compartido la pestaña sin su audio. Vuelve a pulsar el botón y marca «Compartir audio de la pestaña».",
-                             "You shared the tab without its audio. Press the button again and tick \"Share tab audio\".",
-                             "您共享标签页时未包含音频。请再次点击按钮并勾选“共享标签页音频”。"],
-        subsOn:       ["Subtítulos activados.", "Subtitles on.", "字幕已开启。"],
-        subsOff:      ["Subtítulos desactivados.", "Subtitles off.", "字幕已关闭。"],
         finPagina:    ["Fin de la página.", "End of the page.", "页面结束。"],
         panelAbierto: ["Panel de accesibilidad.", "Accessibility panel.", "无障碍面板。"],
 
@@ -198,217 +140,7 @@
     }
 
 
-    /* ============================================================
-       SUBTÍTULOS DEL AUDIO
-       Una barra fija abajo que repite por escrito lo que dice la voz.
-       ============================================================ */
-
-    var barraSubs = null;
-    var temporizadorSubs = null;
-
-    function barra() {
-        if (barraSubs) return barraSubs;
-        barraSubs = document.createElement("div");
-        barraSubs.id = "pn-subtitulos";
-        barraSubs.setAttribute("aria-hidden", "true");   // la voz ya lo dice: no se repite a los lectores de pantalla
-        barraSubs.hidden = true;
-        document.body.appendChild(barraSubs);
-        return barraSubs;
-    }
-
-    function subtitular(texto) {
-        if (!subsActivo || !document.body) return;
-        clearTimeout(temporizadorSubs);
-        var b = barra();
-        b.lang = document.documentElement.lang || "";
-        b.textContent = texto;
-        b.hidden = false;
-    }
-
-    function ocultarSubtitulo(retraso) {
-        clearTimeout(temporizadorSubs);
-        if (!barraSubs) return;
-        function quitar() { if (barraSubs) { barraSubs.hidden = true; barraSubs.textContent = ""; } }
-        if (!retraso) quitar(); else temporizadorSubs = setTimeout(quitar, retraso);
-    }
-
-
-    /* ---------- Subtítulos del resto del audio (vídeos, etc.) ----------
-       Se transcribe con el reconocimiento de voz del navegador. Fuente:
-         · "pestana": pista de audio de la propia pestaña (getDisplayMedia)
-         · "mic":     micrófono (oye los altavoces)
-       Mientras habla el narrador no se transcribe (ya se subtitula con su texto). */
-
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-    var vChrome = +((navigator.userAgent.match(/(?:Chrome|Chromium|Edg)\/(\d+)/) || [])[1] || 0);
-    var PUEDE_PISTA = !!SR && vChrome >= 135 && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
-
-    var escucha = { modo: "", rec: null, flujo: null, pista: null, reiniciar: false, msg: "" };
     var finNarrador = 0;
-
-    function narradorHablando() {
-        return !!synth && (synth.speaking || synth.pending || Date.now() - finNarrador < 1500);
-    }
-
-    function subtituloAudio(texto, final) {
-        if (!subsActivo || !document.body || narradorHablando()) return;
-        texto = limpiar(texto);
-        if (!texto) return;
-        if (texto.length > 140) {
-            var corte = texto.indexOf(" ", texto.length - 140);
-            texto = "… " + texto.slice(corte > 0 ? corte + 1 : texto.length - 140);
-        }
-        clearTimeout(temporizadorSubs);
-        var b = barra();
-        b.lang = document.documentElement.lang || "";
-        b.textContent = texto;
-        b.hidden = false;
-        ocultarSubtitulo(final ? 3500 : 6000);
-    }
-
-    function crearReconocedor() {
-        var rec = new SR();
-        rec.continuous = true;
-        rec.interimResults = true;
-        rec.maxAlternatives = 1;
-        rec.lang = LOCALES[idioma()] || "es-ES";
-
-        rec.onresult = function (ev) {
-            if (escucha.rec !== rec) return;
-            var r = ev.results[ev.results.length - 1];
-            if (r && r[0]) subtituloAudio(r[0].transcript, r.isFinal);
-        };
-        rec.onerror = function (e) {
-            if (escucha.rec !== rec || !e) return;
-            if (e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture") {
-                escucha.reiniciar = false;      // sin permiso no se insiste
-                escucha.msg = "subsPermiso";
-                estadoSubs();
-            }
-            // "no-speech", "network", "aborted"...: onend lo reintenta
-        };
-        rec.onend = function () {
-            if (!escucha.reiniciar || escucha.rec !== rec || !subsActivo) return;
-            setTimeout(function () { if (escucha.reiniciar && escucha.rec === rec) lanzarReconocedor(rec); }, 300);
-        };
-        return rec;
-    }
-
-    function lanzarReconocedor(rec) {
-        try {
-            if (escucha.pista && escucha.pista.readyState === "live") rec.start(escucha.pista);
-            else rec.start();
-        } catch (e) { /* ya estaba en marcha */ }
-    }
-
-    function arrancarReconocedor() {
-        if (!SR || !subsActivo) { estadoSubs(); return; }
-        var anterior = escucha.rec;
-        escucha.rec = null;
-        if (anterior) { anterior.onend = null; try { anterior.abort(); } catch (e) { } }
-        var rec = crearReconocedor();
-        escucha.rec = rec;
-        escucha.reiniciar = true;
-        escucha.modo = escucha.pista ? "pestana" : "mic";
-        lanzarReconocedor(rec);
-        estadoSubs();
-    }
-
-    function soltarFlujo() {
-        if (escucha.flujo) { try { escucha.flujo.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { } }
-        escucha.flujo = null;
-        escucha.pista = null;
-    }
-
-    function pararEscucha() {
-        escucha.reiniciar = false;
-        var rec = escucha.rec;
-        escucha.rec = null;
-        if (rec) { rec.onend = null; try { rec.abort(); } catch (e) { } }
-        soltarFlujo();
-        escucha.modo = "";
-        escucha.msg = "";
-        estadoSubs();
-    }
-
-    // Debe llamarse desde un gesto de la persona (clic): el navegador pregunta qué compartir.
-    // NO hay micrófono de reserva: si no se comparte el audio de la pestaña, no se transcribe nada.
-    function captarPestana() {
-        escucha.msg = "";
-        if (!PUEDE_PISTA) { estadoSubs(); return; }
-        var pedido;
-        try {
-            pedido = navigator.mediaDevices.getDisplayMedia({
-                video: true,
-                audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-                preferCurrentTab: true, selfBrowserSurface: "include", systemAudio: "include"
-            });
-        } catch (e) { escucha.msg = "subsPermiso"; estadoSubs(); return; }
-
-        pedido.then(function (flujo) {
-            flujo.getVideoTracks().forEach(function (t) { t.stop(); });   // solo interesa el audio
-            var pistas = flujo.getAudioTracks();
-            if (!pistas.length) {
-                flujo.getTracks().forEach(function (t) { t.stop(); });
-                escucha.msg = "subsSinAudioPestana";
-                estadoSubs();
-                return;
-            }
-            soltarFlujo();
-            escucha.flujo = flujo;
-            escucha.pista = pistas[0];
-            pistas[0].addEventListener("ended", function () {             // la persona dejó de compartir
-                if (escucha.pista !== pistas[0]) return;
-                escucha.flujo = null;
-                escucha.pista = null;
-                escucha.reiniciar = false;
-                var r = escucha.rec;
-                escucha.rec = null;
-                if (r) { r.onend = null; try { r.abort(); } catch (e) { } }
-                escucha.modo = "";
-                estadoSubs();
-            });
-            arrancarReconocedor();
-        }, function () {
-            escucha.msg = "subsPermiso";                                   // canceló o lo bloqueó
-            estadoSubs();
-        });
-    }
-
-    // Solo si la persona lo pide expresamente (botón del panel)
-    function usarMicrofono() {
-        escucha.msg = "";
-        soltarFlujo();
-        arrancarReconocedor();
-    }
-
-    function estadoSubs() {
-        if (!ui.subsAviso) return;
-        var txt = "", ok = true;
-        if (subsActivo) {
-            if (escucha.msg) { txt = T(escucha.msg); ok = false; }
-            else if (!SR) { txt = T("subsNoSoporta"); ok = false; }
-            else if (escucha.modo === "pestana") txt = T("subsEstadoPestana");
-            else if (escucha.modo === "mic") txt = T("subsEstadoMic");
-            else if (PUEDE_PISTA) txt = T("subsPendiente");
-            else { txt = T("subsNoPestana"); ok = false; }
-        }
-        ui.subsAviso.textContent = txt;
-        ui.subsAviso.classList.toggle("ok", ok);
-        ui.subsAviso.hidden = !txt;
-
-        var verPestana = subsActivo && PUEDE_PISTA && escucha.modo !== "pestana";
-        var verMic = subsActivo && !!SR && escucha.modo !== "mic";
-        if (ui.subsBotones) ui.subsBotones.hidden = !(verPestana || verMic);
-        if (ui.subsPestana) { ui.subsPestana.hidden = !verPestana; ui.subsPestana.textContent = T("subsBtnPestana"); }
-        if (ui.subsMic) { ui.subsMic.hidden = !verMic; ui.subsMic.textContent = T("subsBtnMic"); }
-
-        // Botón flotante en la propia página: mientras no se haya compartido el audio
-        if (ui.subsPastilla) {
-            ui.subsPastilla.hidden = !(subsActivo && PUEDE_PISTA && escucha.modo === "");
-            ui.subsPastilla.textContent = T("subsPastilla");
-        }
-    }
 
 
     /* ============================================================
@@ -447,16 +179,6 @@
         '#a11y-panel .a11y-aviso{margin:8px 0 0;font-size:12px;color:#b45309}',
         '#a11y-panel .a11y-aviso.ok{color:var(--texto-secundario,#64748b)}',
         '#a11y-panel .a11y-botones[hidden]{display:none}',
-        '#pn-subtitulos{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2500;',
-        '  max-width:min(900px,92vw);padding:10px 18px;border-radius:10px;background:rgba(0,0,0,.88);color:#fff;font-family:inherit;',
-        '  font-size:20px;font-weight:600;line-height:1.4;text-align:center;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.35)}',
-        '#pn-subtitulos[hidden]{display:none}',
-        '#pn-subs-activar{position:fixed;left:50%;bottom:calc(max(24px,env(safe-area-inset-bottom)) + 64px);transform:translateX(-50%);z-index:2600;',
-        '  max-width:92vw;padding:12px 22px;border:0;border-radius:999px;background:var(--azul,#2563eb);color:#fff;font:inherit;font-size:15px;font-weight:700;',
-        '  cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.3)}',
-        '#pn-subs-activar:hover,#pn-subs-activar:focus-visible{background:var(--azul-oscuro,#0f172a);outline:3px solid #fff;outline-offset:2px}',
-        '#pn-subs-activar[hidden]{display:none}',
-        '@media (max-width:600px){#pn-subtitulos{font-size:16px;padding:8px 12px}}',
         '#a11y-panel select:disabled{opacity:.55;cursor:not-allowed}',
         '@media (max-width:600px){#a11y-boton{width:38px;height:38px}#selector-a11y.flotante{top:10px;right:92px}',
         '  #a11y-panel{position:fixed;left:12px;right:12px;width:auto;max-width:none}}',
@@ -625,12 +347,10 @@
                 u.onstart = function () {
                     if (miFicha !== ficha) return;
                     if (i === 0 && opciones.elemento) resaltar(opciones.elemento);
-                    subtitular(parte);
                 };
                 u.onend = function () {
                     finNarrador = Date.now();
                     if (i === partes.length - 1) {
-                        if (miFicha === ficha) ocultarSubtitulo(1200);
                         if (opciones.alTerminar) opciones.alTerminar();
                     }
                 };
@@ -666,7 +386,6 @@
         finNarrador = Date.now();
         if (synth) synth.cancel();
         quitarResaltado();
-        ocultarSubtitulo();
     }
 
 
@@ -881,18 +600,6 @@
         }
     }
 
-    function activarSubtitulos(on, desdeUsuario) {
-        subsActivo = !!on;
-        guardar(CLAVE_SUBS, subsActivo ? "1" : "0");
-        if (ui.subs) ui.subs.checked = subsActivo;
-        escucha.msg = "";
-        if (!subsActivo) { pararEscucha(); ocultarSubtitulo(); }
-        else if (desdeUsuario) captarPestana();   // gesto de la persona: se puede pedir el audio de la pestaña
-        refrescarTextos();                        // (sin gesto no se puede: aparece el botón flotante)
-        document.dispatchEvent(new CustomEvent("subtitulosCambiados", { detail: { activo: subsActivo } }));
-        if (desdeUsuario) hablar(subsActivo ? T("subsOn") : T("subsOff"));
-    }
-
     function activarDaltonico(on, desdeUsuario) {
         daltonico = !!on;
         guardar(CLAVE_DALTONICO, daltonico ? "1" : "0");
@@ -952,13 +659,6 @@
                     '<p class="a11y-ayuda" id="a11y-dalto-ayuda"></p>' +
                 '</div>' +
 
-                '<div class="a11y-fila">' +
-                    '<label class="a11y-sw"><input type="checkbox" role="switch" id="a11y-subs" aria-describedby="a11y-subs-ayuda"><span id="a11y-subs-txt"></span></label>' +
-                    '<p class="a11y-ayuda" id="a11y-subs-ayuda"></p>' +
-                    '<p class="a11y-aviso" id="a11y-subs-aviso" role="status" hidden></p>' +
-                    '<div class="a11y-botones" id="a11y-subs-botones" style="flex-direction:column" hidden><button type="button" id="a11y-subs-pestana"></button><button type="button" id="a11y-subs-mic"></button></div>' +
-                '</div>' +
-
                 '<p class="a11y-atajos" id="a11y-atajos"></p>' +
             '</div>';
 
@@ -979,19 +679,6 @@
         ui.panel = caja.querySelector("#a11y-panel");
         ui.narrador = caja.querySelector("#a11y-narrador");
         ui.dalto = caja.querySelector("#a11y-dalto");
-        ui.subs = caja.querySelector("#a11y-subs");
-        ui.subsAviso = caja.querySelector("#a11y-subs-aviso");
-        ui.subsBotones = caja.querySelector("#a11y-subs-botones");
-        ui.subsPestana = caja.querySelector("#a11y-subs-pestana");
-        ui.subsMic = caja.querySelector("#a11y-subs-mic");
-
-        // Botón flotante: el navegador exige un clic para poder captar el audio de la pestaña
-        ui.subsPastilla = document.createElement("button");
-        ui.subsPastilla.type = "button";
-        ui.subsPastilla.id = "pn-subs-activar";
-        ui.subsPastilla.hidden = true;
-        document.body.appendChild(ui.subsPastilla);
-        ui.subsPastilla.addEventListener("click", captarPestana);
         ui.vel = caja.querySelector("#a11y-vel");
         ui.aviso = caja.querySelector("#a11y-aviso");
 
@@ -1005,8 +692,6 @@
         ui.narrador.checked = activo;
         ui.dalto.checked = daltonico;
 
-        ui.subs.checked = subsActivo;
-
         if (!synth) {
             ui.narrador.disabled = true;
             ui.vel.disabled = true;
@@ -1017,9 +702,6 @@
 
         ui.narrador.addEventListener("change", function () { activarNarrador(ui.narrador.checked, true); });
         ui.dalto.addEventListener("change", function () { activarDaltonico(ui.dalto.checked, true); });
-        ui.subs.addEventListener("change", function () { activarSubtitulos(ui.subs.checked, true); });
-        ui.subsPestana.addEventListener("click", captarPestana);
-        ui.subsMic.addEventListener("click", usarMicrofono);
         ui.vel.addEventListener("change", function () {
             velocidad = ui.vel.value;
             guardar(CLAVE_VELOCIDAD, velocidad);
@@ -1091,9 +773,6 @@
         ui.caja.querySelector("#a11y-dalto-txt").textContent = T("dalto");
         ui.caja.querySelector("#a11y-dalto-ayuda").textContent = T("daltoAyuda");
         ui.caja.querySelector("#a11y-atajos").textContent = T("atajos");
-        ui.caja.querySelector("#a11y-subs-txt").textContent = T("subs");
-        ui.caja.querySelector("#a11y-subs-ayuda").textContent = T("subsAyuda");
-        estadoSubs();
         ui.aviso.textContent = T("sinVoz");
 
         Array.prototype.forEach.call(ui.vel.options, function (o) { o.textContent = T(o.value); });
@@ -1202,7 +881,6 @@
             if (e && e.detail && e.detail.soloTasas) return;
             if (primera) { primera = false; return; }
             hablar(T("idiomaCambiado"));
-            if (subsActivo && escucha.rec) arrancarReconocedor();   // el reconocimiento pasa al idioma nuevo
         });
     }
 
@@ -1216,8 +894,7 @@
         leerPagina: leerPagina,
         detener: detener,
         get activo() { return activo; },
-        get daltonico() { return daltonico; },
-        get subtitulos() { return subsActivo; }
+        get daltonico() { return daltonico; }
     };
 
     function iniciar() {
@@ -1225,7 +902,6 @@
         engancharEventos();
         if (synth) { try { synth.getVoices(); } catch (e) { } }   // Chrome las carga en la primera consulta
         if (activo) introPagina();
-        if (subsActivo) estadoSubs();   // sin gesto no se puede captar la pestaña: se muestra el botón flotante
     }
 
     if (document.readyState === "loading") {
